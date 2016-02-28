@@ -143,7 +143,7 @@ h3 {
 }
 @media screen and (max-width: 768px) {
 #article-header h1 {
-  margin:30px 30px;
+  margin:17px 30px;
 }
 }
 #article-header h3 {
@@ -171,26 +171,39 @@ h3 {
     left: 0px;
     right: 0px;
 }
-#article-header #article-header-container h1 .category {
+#article-header #article-header-container .category-mobile {
+  margin: 30px;
+  padding: 3px;
+  background-color: #4a90e2;
+  color: #fff;
+  display: none;
+}
+#article-header #article-header-container .article-header-category-title-line {
+  margin: 20px 30px 17px 30px;
+  height: 1px;
+  background-color: #fff;
+  display: none;
+}
+@media screen and (max-width: 768px) {
+#article-header #article-header-container .category-mobile { 
+  display: inline;
+}
+#article-header #article-header-container .article-header-category-title-line {
+  display: block;
+}
+}
+#article-header #article-header-container h1 .category-desktop {
     background-color: #4a90e2;
     color:white;
     font-size:14px;
     padding: 3px;
     position: absolute;
-}
-#article-header #article-header-container h1 .category-lead {
-    top: 10px; 
-    display:none;
-}
-#article-header #article-header-container h1 .category-tail {
     display:inline;
     top: 20px;
 }
+
 @media screen and (max-width: 768px) {
-#article-header #article-header-container h1 .category-lead {
-    display:inline;
-}
-#article-header #article-header-container h1 .category-tail {
+#article-header #article-header-container h1 .category-desktop {
     display:none;
 }
 }
