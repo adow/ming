@@ -18,8 +18,18 @@
         <li><a href = ''>About</a></li>
       </ul>
       <div class = 'site-menu'>
-        <a href=''><img src= 'images/menu.png'/></a> 
+        <a href='#'><img src= 'images/menu.png'/></a> 
       </div>
+      
+    </div>
+    <div id = 'site-links-mobile'>
+      <a class = 'site-links-mobile-close' href = '#'>close</a>
+      <div class="clearfix"></div>
+      <ul>
+        <li><a href = ''>Works</a></li>
+        <li><a href = ''>Archives</a></li>
+        <li><a href = ''>About</a></li>
+      </ul>
     </div>
     <div class ='clearfix'></div>
     <div id ='article-header'>
@@ -109,5 +119,13 @@ window.onscroll = function(){
     site_nav.css('visibility','visible');
   }
 }
+$('.site-menu').click(function(){
+    var site_links_mobile = $('#site-links-mobile');
+    site_links_mobile.css('display','block');
+    });
+$('.site-links-mobile-close').click(function(){
+    var site_links_mobile = $('#site-links-mobile');
+    site_links_mobile.css('display','none');
+    });
 </script>
 </html>
