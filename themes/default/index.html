@@ -96,4 +96,18 @@ In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat ali
     </div>
   </div>
 </body>
+<script type = 'text/javascript'>
+window.onscroll = function(){
+  var document_top = document.documentElement.scrollTop;
+  var body_top = document.body.scrollTop;
+  //console.log(document_top.toString() + ',' + body_top.toString());
+  var site_nav = $('#site-nav');
+  if (body_top >= 100.0) {
+    site_nav.css('visibility','hidden');
+  }
+  else {
+    site_nav.css('visibility','visible');
+  }
+}
+</script>
 </html>
