@@ -114,68 +114,75 @@ h3 {
     left: 0px;
     right: 0px;
     min-height: 200px;
+    padding: 30px 0px 0px;
 }
-#article-content .article-content-container {
-    padding: 30px 50px;
-    overflow: hidden;
+@media screen and (max-width: 768px) {
+#article-content {
+  padding: 0px 0px;
+}
+}
+
+#article-content > p, #article-content > div, #article-content > ul,
+  #article-content > pre {
+    margin: 30px auto;
+    padding: 0px 60px;
+    max-width: 800px;
+    line-height: 30px;
+    float: none;
+}
+@media screen and (max-width: 768px) {
+#article-content > p, #article-content > div, #article-content > ul,
+  #article-content > pre {
+    margin: 30px auto;
+    padding: 0px 30px;
+    max-width: 768px;
+} 
+}
+#article-content > p {
+}
+@media screen and (max-width: 768px) {
+#article-content > p {
+}
+}
+#article-content > blockquote {
+    font-size: 24px;
+    text-align: center;
+    margin: 60px auto;
+    font-style: italic;
+    line-height: 2;
+    padding: 0px 10px;
+}
+@media screen and (max-width: 768px) {
+#article-content > blockquote {
+  margin: 30px auto;
+  padding: 0px 3px;
+}
+}
+#article-content > h2 {
+    text-align:center;
+    margin:60px 60px;
+}
+@media screen and (max-width: 768px) {
+#article-content > h2 {
+    margin: 30px 30px;
+}
+}
+#article-content > img {
+    margin: 60px auto;
+    display: block;
     max-width: 100%;
 }
 @media screen and (max-width: 768px) {
-#article-content .article-content-container {
-  padding: 0px 10px;
-}
-}
-#article-content .article-content-container p {
-    padding-left: 50px;
-    padding-right: 50px;
-    margin: 30px auto;
-    max-width: 800px;
-    line-height: 30px;
-}
-@media screen and (max-width: 768px) {
-#article-content .article-content-container p {
-    padding-left: 20px;
-    padding-right: 20px;
-}
-}
-#article-content .article-content-container blockquote {
-    font-size: 24px;
-    text-align: center;
-    margin: 60px 0px;
-    font-style: italic;
-    line-height: 2;
-}
-@media screen and (max-width: 768px) {
-#article-content .article-content-container blockquote {
+#article-content > img {
   margin: 30px 0px;
-}
-}
-#article-content .article-content-container h2 {
-    text-align:center;
-    margin:60px 50px;
-}
-@media screen and (max-width: 768px) {
-#article-content .article-content-container h2 {
-    margin: 30px 20px;
-}
-}
-#article-content .article-content-container img {
-    margin: 60px -50px;
-    display: block;
-}
-@media screen and (max-width: 768px) {
-#article-content .article-content-container img {
-  margin: 30px -20px;
 }
 }
 
 #article-content .article-author {
     text-align: center;
-    margin: 60px 50px;
 }
 @media screen and (max-width: 768px) {
 #article-content .article-author {
-  margin: 30px 20px;
 }
 }
 #article-content .article-author .article-author-avatar img {
@@ -200,12 +207,8 @@ h3 {
 #article-content .article-author ul li a {
 }
 #article-content .article-navigation {
-  margin: 60px 50px;
-}
-@media screen and (max-width: 768px) {
-#article-content .article-navigation {
-  margin: 30px 20px;
-} 
+  margin-top: 60px;
+  margin-bottom: 60px;
 }
 #article-content .article-navigation ul {
   list-style-type: none;
@@ -231,14 +234,14 @@ h3 {
   color: #9b9b9b;
 }
 #article-content .footer {
-  margin: 60px 50px;
+  margin-top: 60px;
+  margin-bottom: 10px;
   text-align: center;
   color: #9b9b9b;
   font-size: 14px;
 }
 @media screen and (max-width: 768px) {
 #article-content .footer {
-  margin: 60px 20px;
   text-align: left;
 }
 }
