@@ -1,0 +1,19 @@
+{
+    "site_name":"CodingNEXT",
+    "site_title":"CodingNext",
+    "site_name_mobile":"CN",
+    "site_title_mobile":"CN",
+    "url":"http://codingnext.com/",
+    "author":"adow",
+    "email":"reynoldqin@codingnext.com",
+    "theme":"default",
+    "links":[ 
+            {"title":"Works",
+               "url":""},
+            {"title":"Archives",
+               "url":""},
+            {"title":"About",
+               "url":""}
+        ],
+    "css":{}
+}

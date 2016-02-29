@@ -11,11 +11,11 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><span class = 'site-name-desktop'>CodingNext.com</span><span class = 'site-name-mobile'>CN</span></div>
+      <div class = 'site-name'><span class = 'site-name-desktop'>{{ site_config.site_name }}</span><span class = 'site-name-mobile'>{{ site_config.site_name_mobile  }}</span></div>
       <ul class = 'site-links'>
-        <li><a href = ''>Works</a></li>
-        <li><a href = ''>Archives</a></li>
-        <li><a href = ''>About</a></li>
+        {% for link in site_config.links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
       </ul>
       <div class = 'site-menu'>
         <a href='#'><img src= '{{ theme_dir }}/images/menu.png'/></a> 
@@ -26,23 +26,27 @@
       <a class = 'site-links-mobile-close' href = '#'>close</a>
       <div class="clearfix"></div>
       <ul>
-        <li><a href = ''>Works</a></li>
-        <li><a href = ''>Archives</a></li>
-        <li><a href = ''>About</a></li>
+        {% for link in site_config.links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
       </ul>
     </div>
     <div class ='clearfix'></div>
     <div id ='article-header'>
       <div id = 'article-header-gradient'></div>
       <div id = 'article-header-container'>
-        <small class = 'category-mobile'>Code</small>
+        {% if article_config['category'] %}
+        <small class = 'category-mobile'>{{ article_config['category'] }}</small>
+        {% endif %}
         <div class = 'article-header-category-title-line'></div>
         <h1>
           {{ article_config['title'] or 'Title' }}
-          <small class = 'category-desktop'>Code</small>
+          {% if article_config['category'] %}
+          <small class = 'category-desktop'>{{ article_config['category'] }}</small>
+          {% endif %}
         </h1>
         <h3>{{ article_config['subtitle'] or 'Subtitle' }}</h3>
-        <p class = 'publish-date'>adow 发布于 2016-02-23</p>
+        <p class = 'publish-date'>{{ article_config['author'] }} 发布于 {{ article_config['publish_date'] }}</p>
       </div>
     </div> 
     <div id="article-content">
@@ -53,10 +57,10 @@
           <a href=''><img src='{{ theme_dir }}/images/avatar.png'/></a> 
         </div>   
         <p class = 'm-t-30'>
-          Author 
+          {{ article_config['author'] }} 
         </p>
         <p>
-          Coding for Life and Universe 
+          {{ article_config['status'] }}
         </p>
         <div class = 'clearfix'></div>
         <div class = 'article-author-social'>

@@ -13,9 +13,9 @@ import json
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
 
-# config
 OUTPUT_DIR = 'output'
-
+DOCUMENTS_DIR = 'documents'
+# config
 SITE_CONFIG = {
         'site_name':'ming site',
         'site_title': 'ming title',
@@ -25,83 +25,62 @@ SITE_CONFIG = {
         'theme':'default',
         }
 
-ARTICLE_CONFIG = copy.deepcopy(SITE_CONFIG)
-ARTICLE_CONFIG['title'] = 'Article Title on MING'
-ARTICLE_CONFIG['summery'] = 'Summery of this Article'
-ARTICLE_CONFIG['category'] = 'ming'
-ARTICLE_CONFIG['link'] = 'ming-first-article'
-ARTICLE_CONFIG['author'] = 'adow'
-ARTICLE_CONFIG['publish_date'] = '2016-02-26'
-ARTICLE_CONFIG['theme'] = 'default'
-ARTICLE_CONFIG['css'] = {}
+class Modal(dict):
+    def __init__(self,row=None,**args):
+        '''row should be type of dict or database.Row'''
+        if row and issubclass(row.__class__,dict):
+            for k in row:
+                v = row[k]
+                if isinstance(v,dict) and '__model__' in v:
+                    m_c_col = v["__model__"].split('.')
+                    m_name = m_c_col[0].encode('utf-8')
+                    c_name = m_c_col[1].encode('utf-8')
+                    m = sys.modules[m_name]
+                    c = getattr(m,c_name)
+                    self[k] = c(row = v) 
+                else:
+                    self[k]=row[k]  
+        for k in args:
+            self[k]=args[k]
 
-print ARTICLE_CONFIG
+    def __getattr__(self,name):
+        try:
+            return self[name]
+        except:
+            return None
 
-# make
-def parse_article(article_file):
-    f = open(article_file)
-    markdown = f.read()
-    f.close()
-    return markdown
-
-def make_html(article_file):
-    article_config = load_article_config(article_file) 
-    markdown = parse_article(article_file) 
-    # title
-    title_from_markdown = ''
-    lines = markdown.split('\n')
-    if lines:
-        first_line = lines[0]
-        if first_line.startswith('#'):
-            title_from_markdown = first_line[1:].strip()
-            if len(lines):
-                markdown = '\n'.join(lines[1:])
-    # html
-    content = render(markdown.decode('utf-8'))
+    def __setattr__(self,name,value):
+        self[name]=value
     
-    # link
-    article_link = article_config.get('link')
-    # TODO: generate link from title if no link in config 
-    if not article_link:
-        print 'no article link'
-        return
-    # title
-    if not article_config.get('title') and title_from_markdown:
-        article_config['title'] = title_from_markdown
-    # theme
-    env=Environment(loader=PackageLoader('themes','default'))
-    theme = env.get_template('index.html')
-    html = theme.render(content = content, article_config = article_config)
-    # write html file
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-    article_file = os.path.join(OUTPUT_DIR,article_link + '.html')
-    f = open(article_file,'w')
-    f.write(html.encode('utf-8'))
-    f.close()
-    # TODO: update archive
-    # output
-    print html
-    print article_config
+    def __deepcopy__(self,memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k in self:
+            v = self[k]
+            setattr(result,k,copy.deepcopy(v,memo))
+        return result
 
-def load_article_config(article_file):
-    article_config = ARTICLE_CONFIG
-    config_file = article_file + '.json'
-    if not os.path.exists(config_file):
-        return article_config
-    f = open(config_file)
-    config_str = f.read()
-    f.close()
-    d = json.loads(config_s) if config_str else {}
-    for (k,v) in d:
-        article_config[k] = v
-    return article_config
+class SiteConfig(Modal):
+    def __init__(self,row = None, **args):
+        super(SiteConfig,self).__init__(row = row, **args)
+
+    @classmethod
+    def localConfig(CLS):
+        config_filename = './site.json'
+        f = open(config_filename)
+        s = f.read()
+        f.close()
+        d = json.loads(s)
+        config = SiteConfig(row = d)
+        return config
 
 class Article(object):
     def __init__(self,article_filename):
         super(Article,self).__init__()
         self.article_filename = os.path.join('documents',article_filename)
-        self.article_config = {}
+        self.site_config = SiteConfig.localConfig()
+        self.article_config = copy.deepcopy(self.site_config)
         self.markdown_raw = ''
         self.markdown = ''
         self.title_from_markdown = ''
@@ -133,7 +112,7 @@ class Article(object):
         s = f.read()
         f.close()
         d = json.loads(s) if s else {}
-        for (k,v) in d:
+        for (k,v) in d.items():
             self.article_config[k] = v 
 
     def render_html(self):
@@ -147,7 +126,8 @@ class Article(object):
         theme_dir = os.path.join('/','themes',theme_name) 
         html = theme.render(theme_dir = theme_dir, 
                 content = self.article_html , 
-                article_config = self.article_config)
+                article_config = self.article_config,
+                site_config = self.site_config)
         return html
 
 # test
