@@ -144,6 +144,8 @@ NSData/String 的 `signHex/signBase64` 方法支持签名输出为 hex 和 base6
 * `aesEBCDecryptFromHex` 从 hex 字符串进行EBC模式解密
 * `aesEBCDecryptBase64` 从 base64 字符串进行EBC解密
 
+示例: 
+
 		let key = "0000000000000000"
 		let raw = "0123456789abcdef"
 		let encrypt_1 = raw.aesEBCEncrypt(key)
@@ -159,6 +161,8 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 * `aesCBCEncrypt` 进行加密;
 * `aecCBCDecryptFromHex` 从 hex 字符串进行解密
 * `aesCBCDecryptFromBase64` 从 base64 字符串进行解密
+	
+示例:		
 		
 		let iv = "0000000000000000"
 		let encrypt = raw.aesCBCEncrypt(key,iv: iv)
@@ -169,7 +173,7 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 
 ### RSA 
 
-** 只支持 `.der` 文件格式的公钥和 `.p12` 格式的私钥 (而 PHP/Java/Python 这些平台使用 pem 文件)；只支持 PKCS1Padding 的补齐；** 
+** 只支持 `.der` 文件格式的公钥和 `.p12` 格式的私钥 (而 PHP/Java/Python 这些平台使用 pem 文件)；只支持 PKCS1Padding 的补齐；**
 
 使用 `OpenSSL` 生成各个证书的方法
 
@@ -203,6 +207,8 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 * `public func decrypt(data:NSData) -> NSData?`
 * `public func decrypt(fromHexString hexString:String) -> NSData?`
 * `public func decrypt(fromBase64String base64String:String) -> NSData?`
+
+示例
 
 		let path_public = NSBundle.mainBundle().pathForResource("cert", ofType: "der")!
 		let path_private = NSBundle.mainBundle().pathForResource("cert", ofType: "p12")!
@@ -241,6 +247,8 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 `public func verify(algorithm:RSAAlgorithm,inputData:NSData, signedData:NSData) -> Bool`
 
 
+示例
+
 		let path_public = NSBundle.mainBundle().pathForResource("cert", ofType: "der")!
 		        let path_private = NSBundle.mainBundle().pathForResource("cert", ofType: "p12")!
 		       
@@ -266,6 +274,7 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 * `base64String`: 输出 base64 字符串
 * `arrayOfBytes`: 输出 `[UInt8]` 数组;
 
+示例:
 
 		extension NSData {
 			public var hexString : String
@@ -276,6 +285,8 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 ## 扩展 String
 
 * `dataFromHexadecimalString`: 从 hex 字符串转换到 NSData;
+
+示例: 
 
 		extenstion String {
 			func dataFromHexadecimalString() -> NSData?

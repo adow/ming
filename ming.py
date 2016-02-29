@@ -97,6 +97,59 @@ def load_article_config(article_file):
         article_config[k] = v
     return article_config
 
+class Article(object):
+    def __init__(self,article_filename):
+        super(Article,self).__init__()
+        self.article_filename = os.path.join('documents',article_filename)
+        self.article_config = {}
+        self.markdown_raw = ''
+        self.markdown = ''
+        self.title_from_markdown = ''
+        self.article_html = ''
+
+    def _parse_markdown_from_article(self):
+        ''' 解析 markdown '''
+        if not os.path.exists(self.article_filename):
+            raise Exception('Article not found:%s'%(self.article_filename,))
+        f = open(self.article_filename)
+        self.markdown_raw = f.read()
+        f.close()
+        self.markdown = self.markdown_raw
+        lines = self.markdown.split('\n')
+        if lines:
+            first_line = lines[0]
+            if first_line.startswith('#'):
+                self.title_from_markdown = first_line[1:].strip()
+                if len(lines):
+                    self.markdown = '\n'.join(lines[1:])
+        self.article_html = render(self.markdown.decode('utf-8'))
+
+    def _load_article_config(self):
+        ''' 读取配置文件'''
+        article_config_filename = self.article_filename + '.json'
+        if not os.path.exists(article_config_filename):
+            return
+        f = open(article_config_filename)
+        s = f.read()
+        f.close()
+        d = json.loads(s) if s else {}
+        for (k,v) in d:
+            self.article_config[k] = v 
+
+    def render_html(self):
+        self._parse_markdown_from_article()
+        self._load_article_config()
+        if not self.article_config.get('title') and self.title_from_markdown:
+            self.article_config['title'] = self.title_from_markdown
+        theme_name = self.article_config.get('themes','default')
+        env=Environment(loader=PackageLoader('themes',theme_name))
+        theme = env.get_template('index.html')
+        theme_dir = os.path.join('/','themes',theme_name) 
+        html = theme.render(theme_dir = theme_dir, 
+                content = self.article_html , 
+                article_config = self.article_config)
+        return html
+
 # test
 def _test_parse_article():
     article_file = 'documents/README.md'

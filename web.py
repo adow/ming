@@ -15,25 +15,65 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
+from ming import Article
+
 class ArticlePage(tornado.web.RequestHandler):
     '''文章预览'''
     def get(self):
-        self.write('Article') 
+        #self.write('Article') 
+        url = self.request.path
+        (_,filename) = os.path.split(url)
+        #self.write(filename)
+        print filename
+        article = Article(filename)
+        html = article.render_html()
+        self.write(html)
 
 class ThemePage(tornado.web.RequestHandler):
     '''模板预览页面'''
     def get(self):
         url = self.request.path
-        (template_dir,template_filename) = os.path.split(url)
-        print template_dir
-        print template_filename
+        (theme_dir,theme_filename) = os.path.split(url)
+        print theme_dir
+        print theme_filename
         d_theme,d_name = map(lambda s:s.replace('/',''),
-                os.path.split(template_dir))
+                os.path.split(theme_dir))
         print d_theme
         print d_name
         env = Environment(loader = PackageLoader(d_theme,d_name))
-        theme = env.get_template(template_filename)
-        html = theme.render(template_dir = template_dir)
+        theme = env.get_template(theme_filename)
+        article_html = '''
+        <p>
+          In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p> 
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+          <blockquote>
+          In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </blockquote>
+          <h2>
+            Subtitle for Codes 
+          </h2>
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+          <img src="/themes/default/images/article-image.png" alt=""/>
+          <p>
+    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
+          </p>
+        '''
+        html = theme.render(theme_dir = theme_dir, content = article_html,
+                article_config = {})
         self.write(html)
 
 # themes

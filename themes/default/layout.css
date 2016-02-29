@@ -231,6 +231,7 @@ h3 {
 }
 
 #article-content > p, #article-content > div, #article-content > ul,
+  #article-content > ol,
   #article-content > pre {
     margin: 30px auto;
     padding: 0px 60px;
@@ -240,11 +241,15 @@ h3 {
 }
 @media screen and (max-width: 768px) {
 #article-content > p, #article-content > div, #article-content > ul,
+  #article-content > ol,
   #article-content > pre {
     margin: 30px auto;
     padding: 0px 30px;
     max-width: 768px;
 } 
+}
+#article-content > ul, #article-content > ol {
+  list-style-position: inside;
 }
 #article-content > p {
 }
@@ -266,23 +271,42 @@ h3 {
   padding: 0px 3px;
 }
 }
-#article-content > h2 {
+code {
+  word-break: break-all;
+  background-color: rgba(155, 155, 155, 0.1);
+  padding: 3.0px;
+}
+#article-content pre {
+  background-color: rgba(155, 155, 155, 0.1);
+}
+#article-content pre > code {
+  display: block;
+  background-color:transparent;
+  padding: 0px;
+  font-size: 14.0px;
+  line-height: 1.5;
+}
+@media screen and (max-width: 768px) {
+#article-content pre {
+}
+}
+#article-content > h2,#article-content > h3,#article-content > h4  {
     text-align:center;
     margin:60px 60px;
 }
 @media screen and (max-width: 768px) {
-#article-content > h2 {
+#article-content > h2,#article-content > h3,#article-content > h4  {
     margin: 30px 30px;
 }
 }
-#article-content > img {
+#article-content img {
     margin: 60px auto;
     display: block;
     max-width: 100%;
 }
 @media screen and (max-width: 768px) {
-#article-content > img {
-  margin: 30px 0px;
+#article-content img{
+  margin: 30px auto;
 }
 }
 
@@ -296,6 +320,11 @@ h3 {
 #article-content .article-author .article-author-avatar img {
   width: 116px;
   height: 116px;
+}
+#article-content .article-author .article-author-social img {
+  margin: 0px 0px;
+  display: inline;
+  max-width: auto;
 }
 #article-content .article-author p {
     margin: 20px auto;
