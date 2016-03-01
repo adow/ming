@@ -320,6 +320,9 @@ code {
 #article-content .article-author .article-author-avatar img {
   width: 116px;
   height: 116px;
+  border-radius: 50%;
+  margin-top:0px;
+  margin-bottom: 0px;
 }
 #article-content .article-author .article-author-social img {
   margin: 0px 0px;

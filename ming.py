@@ -121,6 +121,7 @@ class Article(Modal):
         html = theme.render(theme_dir = theme_dir, 
                 content = self.article_html , 
                 article_config = self.article_config)
+        print self.article_config
         return html
 
     def generate_html(self):
