@@ -1,13 +1,11 @@
 {
+    "theme":"default",
     "site_name":"CodingNEXT",
     "site_title":"CodingNext",
     "site_name_mobile":"CN",
     "site_title_mobile":"CN",
-    "url":"http://codingnext.com/",
-    "author":"adow",
-    "email":"reynoldqin@codingnext.com",
-    "theme":"default",
-    "links":[ 
+    "site_url":"http://codingnext.com/",
+    "site_links":[ 
             {"title":"Works",
                "url":""},
             {"title":"Archives",
@@ -15,5 +13,13 @@
             {"title":"About",
                "url":""}
         ],
+    "author":"adow",
+    "author_email":"reynoldqin@codingnext.com",
+    "author_status":"Coding for Life and Universe",
+    "author_avatar":"",
+    "author_weibo":"",
+    "author_twitter":"",
+    "author_instagram":"",
+    "author_github":"",
     "css":{}
 }

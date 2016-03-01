@@ -78,11 +78,14 @@ class ThemePage(tornado.web.RequestHandler):
 
 # themes
 THEMES_DIR = os.path.join(os.path.dirname(__file__),'themes')
+# output
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__),'_output')
 
 handlers = [
         (r'/article/.*',ArticlePage),
         (r'/themes/.*.html',ThemePage),
         (r'/themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_DIR}),
+        (r'/site/(.*)',tornado.web.StaticFileHandler,{'path':OUTPUT_DIR}),
         ]
 
 port = 8002

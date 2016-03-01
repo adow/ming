@@ -13,18 +13,11 @@ import json
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
 
-OUTPUT_DIR = 'output'
-DOCUMENTS_DIR = 'documents'
-# config
-SITE_CONFIG = {
-        'site_name':'ming site',
-        'site_title': 'ming title',
-        'url':'http://mingpy.com',
-        'author':'ming',
-        'email':'mingpy@gmail.com',
-        'theme':'default',
-        }
+OUTPUT_DIR = '_output'
+DOCUMENTS_DIR = '_documents'
+THEMES_DIR = 'themes'
 
+# config
 class Modal(dict):
     def __init__(self,row=None,**args):
         '''row should be type of dict or database.Row'''
@@ -61,30 +54,39 @@ class Modal(dict):
             setattr(result,k,copy.deepcopy(v,memo))
         return result
 
-class SiteConfig(Modal):
-    def __init__(self,row = None, **args):
-        super(SiteConfig,self).__init__(row = row, **args)
-
-    @classmethod
-    def localConfig(CLS):
-        config_filename = './site.json'
-        f = open(config_filename)
+class Config(Modal):
+    '''配置信息'''
+    def __init__(self, row = None, **args):
+        '''会载入全站的统一配置'''
+        f = open('./site.json')
         s = f.read()
         f.close()
         d = json.loads(s)
-        config = SiteConfig(row = d)
-        return config
+        super(Config,self).__init__(row = d, **args)
 
-class Article(object):
+    def load_article_config(self,article_config_filename):
+        '''会合并文章的配置文件'''
+        d = {}
+        if os.path.exists(article_config_filename):
+            f = open(article_config_filename)
+            s = f.read()
+            f.close()
+            d = json.loads(s)
+        for (k,v) in d.items():
+            self[k] = v
+
+class Article(Modal):
+    '''文章'''
     def __init__(self,article_filename):
         super(Article,self).__init__()
-        self.article_filename = os.path.join('documents',article_filename)
-        self.site_config = SiteConfig.localConfig()
-        self.article_config = copy.deepcopy(self.site_config)
+        self.article_filename = os.path.join(DOCUMENTS_DIR,article_filename)
+        self.article_config = Config()
         self.markdown_raw = ''
         self.markdown = ''
         self.title_from_markdown = ''
         self.article_html = ''
+        self._parse_markdown_from_article()
+        self._load_article_config()
 
     def _parse_markdown_from_article(self):
         ''' 解析 markdown '''
@@ -106,39 +108,40 @@ class Article(object):
     def _load_article_config(self):
         ''' 读取配置文件'''
         article_config_filename = self.article_filename + '.json'
-        if not os.path.exists(article_config_filename):
-            return
-        f = open(article_config_filename)
-        s = f.read()
-        f.close()
-        d = json.loads(s) if s else {}
-        for (k,v) in d.items():
-            self.article_config[k] = v 
+        self.article_config.load_article_config(article_config_filename)
 
     def render_html(self):
-        self._parse_markdown_from_article()
-        self._load_article_config()
-        if not self.article_config.get('title') and self.title_from_markdown:
-            self.article_config['title'] = self.title_from_markdown
+        '''使用模板渲染到 html'''
+        if not self.article_config.get('article_title') and self.title_from_markdown:
+            self.article_config['article_title'] = self.title_from_markdown
         theme_name = self.article_config.get('themes','default')
-        env=Environment(loader=PackageLoader('themes',theme_name))
-        theme = env.get_template('index.html')
-        theme_dir = os.path.join('/','themes',theme_name) 
+        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
+        theme = env.get_template('article.html')
+        theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
         html = theme.render(theme_dir = theme_dir, 
                 content = self.article_html , 
-                article_config = self.article_config,
-                site_config = self.site_config)
+                article_config = self.article_config)
         return html
 
-# test
-def _test_parse_article():
-    article_file = 'documents/README.md'
-    parse_article(article_file)
+    def generate_html(self):
+        '''输出到 html 文件'''
+        html = self.render_html()
+        if not self.article_config.article_link:
+            raise Exception('No Article Link')
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+        output_filename = os.path.join(OUTPUT_DIR,
+                self.article_config.article_link + '.html')
+        print output_filename
+        f = open(output_filename,'w')
+        f.write(html.encode('utf-8'))
+        f.close()
 
-def _test_make_html():
-    article_file = 'documents/README.md'
-    make_html(article_file)
+# test
+def _test_generate_html():
+    filename = 'README.md'
+    article = Article(article_filename = filename)
+    article.generate_html()
 
 if __name__ == '__main__':
-    #_test_parse_article()
-    _test_make_html()
+    _test_generate_html() 
