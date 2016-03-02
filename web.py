@@ -15,7 +15,14 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
-from ming import Article
+from ming import Article, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR
+
+# themes
+THEMES_PATH = os.path.join(os.path.dirname(__file__),THEMES_DIR)
+# output
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__),OUTPUT_DIR)
+# static
+STATIC_PATHA  = os.path.join(os.path.dirname(__file__),'static') #tornado setting static_path
 
 class ArticlePage(tornado.web.RequestHandler):
     '''文章预览'''
@@ -76,35 +83,42 @@ class ThemePage(tornado.web.RequestHandler):
                 article_config = {})
         self.write(html)
 
-# themes
-THEMES_DIR = os.path.join(os.path.dirname(__file__),'themes')
-# output
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__),'_output')
+class SitePage(tornado.web.RequestHandler):
+    def get(self,name):
+        filename = os.path.join(OUTPUT_PATH,'%s.html'%(name,))
+        if not os.path.exists(filename):
+            self.write('%s not found'%(filename,))
+            return
+        f = open(filename)
+        s = f.read()
+        f.close()
+        self.write(s)
 
-handlers = [
-        (r'/article/.*',ArticlePage),
-        (r'/themes/.*.html',ThemePage),
-        (r'/themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_DIR}),
-        (r'/site/(.*)',tornado.web.StaticFileHandler,{'path':OUTPUT_DIR}),
-        ]
 
-port = 8002
+# 启动 web 服务器
+def start_local_server():
+    handlers = [
+            (r'/article/.*',ArticlePage),
+            (r'/_themes/.*.html',ThemePage),
+            (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
+            (r'/(.*).html',SitePage),
+            ]
 
-# tornado
-STATIC_NAME = "static/"
-STATIC_DIR  = os.path.join(os.path.dirname(__file__),STATIC_NAME) #tornado setting static_path
-DEBUG = True # tornado setting debug
-COOKIE_SECRET = "mingsecret" # tornado setting cookie_secret
-TORNADO_SETTING = {
-    "static_path":STATIC_DIR,
-    'debug':DEBUG,
-    'cookie_secret':COOKIE_SECRET,
-}
+    port = 8002
 
-if __name__ == "__main__":
+    # tornado
+    DEBUG = True # tornado setting debug
+    COOKIE_SECRET = "mingsecret" # tornado setting cookie_secret
+    TORNADO_SETTING = {
+        "static_path":STATIC_PATHA,
+        'debug':DEBUG,
+        'cookie_secret':COOKIE_SECRET,
+    }
+    
+    # start
     define("port", default=port, help="run on the given port", type=int)
     tornado.options.parse_command_line()
-    welcome = 'MING Starts'
+    welcome = 'MING Local Server Starts'
     print welcome 
     logging.info('URL-ROUTERS:\n' + '\n'.join([h[0] for h in handlers]))
     logging.info(welcome)
@@ -114,3 +128,6 @@ if __name__ == "__main__":
     server = tornado.httpserver.HTTPServer(application,xheaders = True)
     server.listen(options.port)
     tornado.ioloop.IOLoop.current().start()
+
+if __name__ == '__main__':
+    start_web()

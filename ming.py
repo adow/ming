@@ -13,9 +13,10 @@ import json
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
 
+
 OUTPUT_DIR = '_output'
 DOCUMENTS_DIR = '_documents'
-THEMES_DIR = 'themes'
+THEMES_DIR = '_themes'
 
 # config
 class Modal(dict):
@@ -138,11 +139,26 @@ class Article(Modal):
         f.write(html.encode('utf-8'))
         f.close()
 
+# cli
+def help():
+    print 'ming local-server: start local web server' 
+    print 'ming test: test'
+
 # test
 def _test_generate_html():
     filename = 'README.md'
     article = Article(article_filename = filename)
     article.generate_html()
 
+def test():
+    _test_generate_html()
+
+# start
 if __name__ == '__main__':
-    _test_generate_html() 
+    if len(sys.argv) < 2:
+        help()
+    else:
+        cmd = sys.argv[1]
+        from web import start_local_server 
+        {'local-server':start_local_server,
+            'test':test}.get(cmd,help)()
