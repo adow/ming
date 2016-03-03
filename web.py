@@ -15,7 +15,7 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
-from ming import Article, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR
+from ming import Article,generate_article_table, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR
 
 # themes
 THEMES_PATH = os.path.join(os.path.dirname(__file__),THEMES_DIR)
@@ -74,7 +74,7 @@ class ThemePage(tornado.web.RequestHandler):
           <p>
     In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
           </p>
-          <img src="/themes/default/images/article-image.png" alt=""/>
+          <img src="/_themes/default/images/article-image.png" alt=""/>
           <p>
     In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
           </p>
@@ -94,11 +94,58 @@ class SitePage(tornado.web.RequestHandler):
         f.close()
         self.write(s)
 
+article_table = {}
+def update_article_table():
+    global article_table 
+    article_table = generate_article_table()
+    print 'update_article_table'
+
+class WriterArchive(tornado.web.RequestHandler):
+    def get(self):
+        update_article_table()
+        print article_table
+        s = json.dumps(article_table)
+        self.write(s)
+
+class WriterHtml(tornado.web.RequestHandler):
+    def get(self,name):
+        if not article_table:
+            update_article_table()
+        link = name + '.html'
+        article = article_table.get(link)
+        if not article:
+            self.write('article not found: %s'%(link,))
+            return
+        # 因为这个 article 获取不到内容, 所以要重新取一遍
+        _,filename = os.path.split(article.article_filename)
+        new_article = Article(filename)
+        html = new_article.render_html()
+        self.write(html)
+
+class WriterMarkdown(tornado.web.RequestHandler):
+    def get(self,name,ext):
+        filename = name + ext
+        article = Article(filename)
+        html = article.render_html()
+        self.write(html)
+
+class DefaultPage(tornado.web.RequestHandler):
+    def get(self):
+        html = '<ul>'
+        html += "<li><a href = '/_themes/default/index.html'>Default Theme</a></li>"
+        html += "<li><a href = '/writer/archive.html'>/writer/archive.html</a></li>" 
+        html += "<li><a href = '/secrecy-swift.html'>SecrecySwift</a></li>"
+        html += '</ul>'
+        self.write(html)
 
 # 启动 web 服务器
 def start_local_server():
     handlers = [
+            (r'/',DefaultPage),
             (r'/article/.*',ArticlePage),
+            (r'/writer/archive.html',WriterArchive),
+            (r'/writer/(.*).html',WriterHtml),
+            (r'/writer/(.*)(.md|.markdown)',WriterMarkdown),
             (r'/_themes/.*.html',ThemePage),
             (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
             (r'/(.*).html',SitePage),

@@ -9,6 +9,7 @@ import sys
 import getopt
 import copy
 import json
+import time
 
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
@@ -82,29 +83,38 @@ class Article(Modal):
         super(Article,self).__init__()
         self.article_filename = os.path.join(DOCUMENTS_DIR,article_filename)
         self.article_config = Config()
-        self.markdown_raw = ''
         self.markdown = ''
-        self.title_from_markdown = ''
-        self.article_html = ''
-        self._parse_markdown_from_article()
-        self._load_article_config()
+        self.markdown_without_title = ''
+        self.article_mtime = 0
+        self._load_article_config() # 先读取配置文件
+        self._parse_markdown_from_article() # 解析内容
 
     def _parse_markdown_from_article(self):
         ''' 解析 markdown '''
         if not os.path.exists(self.article_filename):
             raise Exception('Article not found:%s'%(self.article_filename,))
+        self.article_mtime = os.stat(self.article_filename).st_mtime #修改时间
         f = open(self.article_filename)
-        self.markdown_raw = f.read()
+        self.markdown = f.read()
         f.close()
-        self.markdown = self.markdown_raw
-        lines = self.markdown.split('\n')
+        self.markdown_without_title = self.markdown
+        lines = self.markdown_without_title.split('\n')
         if lines:
             first_line = lines[0]
             if first_line.startswith('#'):
-                self.title_from_markdown = first_line[1:].strip()
+                # 配置中没有标题的话就从文章里取一个
+                if not self.article_config.article_title:
+                    title_from_markdown = first_line[1:].strip()
+                    self.article_config.article_title = title_from_markdown
+                # 输出到 html 的时候要去掉标题
                 if len(lines):
-                    self.markdown = '\n'.join(lines[1:])
-        self.article_html = render(self.markdown.decode('utf-8'))
+                    self.markdown_without_title = '\n'.join(lines[1:])
+        # 如果没有标题就用默认的
+        if not self.article_config.article_title:
+            self.article_config.article_title = 'Untitled'
+        # 获取文章的链接
+        if not self.article_config.article_link:
+            self.article_config.article_link = self.article_config.article_title + '.html'
 
     def _load_article_config(self):
         ''' 读取配置文件'''
@@ -113,14 +123,13 @@ class Article(Modal):
 
     def render_html(self):
         '''使用模板渲染到 html'''
-        if not self.article_config.get('article_title') and self.title_from_markdown:
-            self.article_config['article_title'] = self.title_from_markdown
+        article_html = render(self.markdown_without_title.decode('utf-8'))
         theme_name = self.article_config.get('themes','default')
         env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
         theme = env.get_template('article.html')
         theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
         html = theme.render(theme_dir = theme_dir, 
-                content = self.article_html , 
+                content = article_html , 
                 article_config = self.article_config)
         print self.article_config
         return html
@@ -133,11 +142,32 @@ class Article(Modal):
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
-                self.article_config.article_link + '.html')
+                self.article_config.article_link)
         print output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
+
+def generate_article_table():
+    '''获取全部的文章列表'''
+    _t_start = time.time()
+    folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
+    name_list = os.listdir(folder)
+    file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
+    file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
+    #print file_name_list
+    article_table = {}
+    for f in file_name_list:
+        _,filename = os.path.split(f)
+        article = Article(filename)
+        del article['markdown']
+        del article['markdown_without_title']
+        link = article.article_config.article_link
+        article_table[link] = article
+    _t_end = time.time()
+    print (_t_end - _t_start)
+    #print article_table
+    return article_table
 
 # cli
 def help():
