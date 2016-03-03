@@ -172,7 +172,19 @@ def generate_article_table():
 # cli
 def help():
     print 'ming local-server: start local web server' 
+    print 'ming make-article <article-name>: make html'
     print 'ming test: test'
+
+def make_article():
+    if len(sys.argv) < 3:
+        print 'no article specificed' 
+        return
+    article_filename = sys.argv[2]
+    _,ext = os.path.splitext(article_filename)
+    if not ext:
+        article_filename += '.md'
+    article = Article(article_filename = article_filename)
+    article.generate_html()
 
 # test
 def _test_generate_html():
@@ -189,6 +201,8 @@ if __name__ == '__main__':
         help()
     else:
         cmd = sys.argv[1]
+        params = sys.argv[2:] if len(sys.argv) > 2 else []
         from web import start_local_server 
         {'local-server':start_local_server,
+            'make-article':make_article,
             'test':test}.get(cmd,help)()
