@@ -160,8 +160,8 @@ def generate_article_table():
     for f in file_name_list:
         _,filename = os.path.split(f)
         article = Article(filename)
-        del article['markdown']
-        del article['markdown_without_title']
+        #del article['markdown']
+        #del article['markdown_without_title']
         link = article.article_config.article_link
         article_table[link] = article
     _t_end = time.time()
@@ -169,12 +169,75 @@ def generate_article_table():
     #print article_table
     return article_table
 
-# cli
-def help():
-    print 'ming local-server: start local web server' 
-    print 'ming make-article <article-name>: make html'
-    print 'ming test: test'
+def prepare_articles():
+    '''返回 url 和文章关联列表，同时返回排序后的链接列表'''
+    folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
+    name_list = os.listdir(folder)
+    file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
+    file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
+    article_table = {}
+    for f in file_name_list:
+        _,filename = os.path.split(f)
+        article = Article(filename)
+        link = article.article_config.article_link
+        article_table[link] = article
+    def _cmp(link_1, link_2):
+        article_1 = article_table.get(link_1)
+        article_2 = article_table.get(link_2)
+    link_list = article_table.keys() #TODO: 排序的链接列表
+    return (article_table,link_list)
 
+class SiteMaker(object):
+    def __init__(self):
+        super(SiteMaker,self).__init__()
+        self.article_table,self.link_list = prepare_articles() 
+
+    def make_article(self,article_filename):
+        _,ext = os.path.splitext(article_filename)
+        if not ext:
+            article_filename += '.md'
+        article = Article(article_filename = article_filename)
+        article.generate_html()
+
+    def make_archive(self):
+        html = 'archive.html'
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+        output_filename = os.path.join(OUTPUT_DIR, 'archive.html')
+        print output_filename
+        f = open(output_filename,'w')
+        f.write(html)
+        f.close()
+
+    def make_index(self):
+        top_link = self.link_list[0]
+        article = self.article_table[top_link]
+        html = article.render_html()
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+        output_filename = os.path.join(OUTPUT_DIR, 'index.html')
+        print output_filename
+        f = open(output_filename,'w')
+        f.write(html.encode('utf-8'))
+        f.close()
+
+    def make_about(self):
+        html = 'about.html'
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+        output_filename = os.path.join(OUTPUT_DIR, 'about.html')
+        print output_filename
+        f = open(output_filename,'w')
+        f.write(html)
+        f.close()
+
+    def make_site(self):
+        self.make_index()
+        self.make_about()
+        self.make_archive()
+        # 依次生成每一篇文章
+
+# cli
 def make_article():
     if len(sys.argv) < 3:
         print 'no article specificed' 
@@ -185,6 +248,39 @@ def make_article():
         article_filename += '.md'
     article = Article(article_filename = article_filename)
     article.generate_html()
+
+def cli_make_article():
+    if len(sys.argv) < 3:
+        print 'no article specificed' 
+        return
+    article_filename = sys.argv[2]
+    site_maker = SiteMaker()
+    site_maker.make_article(article_filename)
+
+def cli_make_archive():
+    site_maker = SiteMaker()
+    site_maker.make_archive()
+
+def cli_make_about():
+    site_maker = SiteMaker()
+    site_maker.make_about()
+
+def cli_make_index():
+    site_maker = SiteMaker()
+    site_maker.make_index()
+
+def cli_make_site():
+    site_maker = SiteMaker()
+    site_maker.make_site()
+
+def help():
+    print 'ming local-server: start local web server' 
+    print 'ming make-article <article-name>: make html'
+    print 'ming make-archive: make archive.html'
+    print 'ming make-about: make about.html'
+    print 'ming make-index: make index.html'
+    print 'ming make-site: make all pages'
+    print 'ming test: test'
 
 # test
 def _test_generate_html():
@@ -204,5 +300,9 @@ if __name__ == '__main__':
         params = sys.argv[2:] if len(sys.argv) > 2 else []
         from web import start_local_server 
         {'local-server':start_local_server,
-            'make-article':make_article,
+            'make-article':cli_make_article,
+            'make-archive':cli_make_archive,
+            'make-about':cli_make_about,
+            'make-index': cli_make_index,
+            'make-site': cli_make_site,
             'test':test}.get(cmd,help)()

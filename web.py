@@ -7,6 +7,7 @@ import time
 import datetime
 import json
 import re
+import subprocess
 
 import tornado.ioloop
 import tornado.web
@@ -15,7 +16,7 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
-from ming import Article,generate_article_table, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR
+from ming import Article,generate_article_table, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
 
 # themes
 THEMES_PATH = os.path.join(os.path.dirname(__file__),THEMES_DIR)
@@ -100,6 +101,15 @@ def update_article_table():
     article_table = generate_article_table()
     print 'update_article_table'
 
+class CliPage (tornado.web.RequestHandler):
+    def get(self,cmd = 'help'):
+        #self.write(cmd = 'help') 
+        script = 'python ming.py %s'%(cmd,)
+        self.write(script)
+        cli = script.split(' ')
+        subprocess.call(cli)
+
+# writer
 class WriterArchive(tornado.web.RequestHandler):
     def get(self):
         update_article_table()
@@ -107,45 +117,71 @@ class WriterArchive(tornado.web.RequestHandler):
         s = json.dumps(article_table)
         self.write(s)
 
-class WriterHtml(tornado.web.RequestHandler):
-    def get(self,name):
-        if not article_table:
-            update_article_table()
-        link = name + '.html'
-        article = article_table.get(link)
-        if not article:
-            self.write('article not found: %s'%(link,))
-            return
-        # 因为这个 article 获取不到内容, 所以要重新取一遍
-        _,filename = os.path.split(article.article_filename)
-        new_article = Article(filename)
-        html = new_article.render_html()
-        self.write(html)
-
-class WriterMarkdown(tornado.web.RequestHandler):
+class WriterArticle(tornado.web.RequestHandler):
     def get(self,name,ext):
         filename = name + ext
         article = Article(filename)
         html = article.render_html()
         self.write(html)
 
-class DefaultPage(tornado.web.RequestHandler):
+class WriterIndex(tornado.web.RequestHandler):
     def get(self):
-        html = '<ul>'
+        site_maker = SiteMaker()
+        top_link = site_maker.link_list[0]
+        article = site_maker.article_table[top_link]
+        html = article.render_html()
+        self.write(html)
+
+class WriterAbout(tornado.web.RequestHandler):
+    def get(self):
+        pass
+
+class WriterDash(tornado.web.RequestHandler):
+    def get(self):
+        site_maker = SiteMaker()
+        html = '<h1>MING LocalServer</h1>'
+        html += '<h2>Output Site</h2>'
+        html += '<ul>'
+        html += "<li><a href = '/index.html'>首页</a></li>"
+        html += "<li><a href = '/archive.html'>归档</a></li>"
+        html += "<li><a href = '/about.html'>关于</a></li>"
+        html += '</ul>'
+        html += '<h2>Site Maker</h2>'
+        html += '<ul>'
+        html += "<li><a href = '/_cli/make-site'>Make Site</a></li>"
+        html += "<li><a href = '/_cli/make-archive'>Make Archive</a></li>"
+        html += "<li><a href = '/_cli/make-about'>Make About</a></li>"
+        html += '</ul>'
+        html += '<h2>Dynamic Preview</h2>'
+        html += '<ul>'
+        html += "<li><a href = '/_writer/index.html'>首页</a></li>"
+        html += "<li><a href = '/_writer/archive.html'>归档</a></li>"
+        html += "<li><a href = '/_writer/about.html'>关于</a></li>"
+        html += '</ul>'
+        html += '<h3>Article List</h3>'
+        html += '<ul>'
+        for link in site_maker.link_list:
+            link = link.encode('utf-8')
+            article = site_maker.article_table[link]
+            _,filename = os.path.split(article.article_filename)
+            html += "<li><a href = '%s'>%s</a>:%s</li>"%(filename,filename,article.article_config.article_title.encode('utf-8'),)
+        html += '</ul>'
+        html += '<h2>Themes Development</h2>'
+        html += '<ul>'
         html += "<li><a href = '/_themes/default/index.html'>Default Theme</a></li>"
-        html += "<li><a href = '/writer/archive.html'>/writer/archive.html</a></li>" 
-        html += "<li><a href = '/secrecy-swift.html'>SecrecySwift</a></li>"
         html += '</ul>'
         self.write(html)
 
 # 启动 web 服务器
 def start_local_server():
     handlers = [
-            (r'/',DefaultPage),
             (r'/article/.*',ArticlePage),
-            (r'/writer/archive.html',WriterArchive),
-            (r'/writer/(.*).html',WriterHtml),
-            (r'/writer/(.*)(.md|.markdown)',WriterMarkdown),
+            (r'/_writer/index.html',WriterIndex),
+            (r'/_writer/archive.html',WriterArchive),
+            (r'/_writer/about.html',WriterAbout),
+            (r'/_writer/(.*)(.md|.markdown)',WriterArticle),
+            (r'/_writer/',WriterDash),
+            (r'/_cli/(.*)',CliPage),
             (r'/_themes/.*.html',ThemePage),
             (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
             (r'/(.*).html',SitePage),
