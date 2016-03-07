@@ -16,7 +16,7 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
-from ming import Article,generate_article_table, OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
+from ming import Article,OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
 
 # themes
 THEMES_PATH = os.path.join(os.path.dirname(__file__),THEMES_DIR)
@@ -28,10 +28,8 @@ STATIC_PATHA  = os.path.join(os.path.dirname(__file__),'static') #tornado settin
 class ArticlePage(tornado.web.RequestHandler):
     '''文章预览'''
     def get(self):
-        #self.write('Article') 
         url = self.request.path
         (_,filename) = os.path.split(url)
-        #self.write(filename)
         print filename
         article = Article(filename)
         html = article.render_html()
@@ -95,15 +93,8 @@ class SitePage(tornado.web.RequestHandler):
         f.close()
         self.write(s)
 
-article_table = {}
-def update_article_table():
-    global article_table 
-    article_table = generate_article_table()
-    print 'update_article_table'
-
 class CliPage (tornado.web.RequestHandler):
     def get(self,cmd = 'help'):
-        #self.write(cmd = 'help') 
         script = 'python ming.py %s'%(cmd,)
         self.write(script)
         cli = script.split(' ')
@@ -112,9 +103,11 @@ class CliPage (tornado.web.RequestHandler):
 # writer
 class WriterArchive(tornado.web.RequestHandler):
     def get(self):
-        update_article_table()
-        print article_table
-        s = json.dumps(article_table)
+        site_maker = SiteMaker()
+        for (l,a) in site_maker.article_table.items():
+            del a['_markdown']
+            del a['_markdown_without_title']
+        s = json.dumps(site_maker.article_table)
         self.write(s)
 
 class WriterArticle(tornado.web.RequestHandler):
@@ -127,18 +120,16 @@ class WriterArticle(tornado.web.RequestHandler):
 class WriterIndex(tornado.web.RequestHandler):
     def get(self):
         site_maker = SiteMaker()
-        top_link = site_maker.link_list[0]
-        article = site_maker.article_table[top_link]
+        article = site_maker.index_article()
         html = article.render_html()
         self.write(html)
 
 class WriterAbout(tornado.web.RequestHandler):
     def get(self):
-        pass
+        self.write('about') 
 
 class WriterDash(tornado.web.RequestHandler):
     def get(self):
-        site_maker = SiteMaker()
         html = '<h1>MING LocalServer</h1>'
         html += '<h2>Output Site</h2>'
         html += '<ul>'
@@ -160,11 +151,12 @@ class WriterDash(tornado.web.RequestHandler):
         html += '</ul>'
         html += '<h3>Article List</h3>'
         html += '<ul>'
+        site_maker = SiteMaker()
         for link in site_maker.link_list:
             link = link.encode('utf-8')
             article = site_maker.article_table[link]
-            _,filename = os.path.split(article.article_filename)
-            html += "<li><a href = '%s'>%s</a>:%s</li>"%(filename,filename,article.article_config.article_title.encode('utf-8'),)
+            _,filename = os.path.split(article._article_filepath)
+            html += "<li><a href = '%s'>%s</a>:%s</li>"%(filename,filename,article.article_title.encode('utf-8'),)
         html += '</ul>'
         html += '<h2>Themes Development</h2>'
         html += '<ul>'

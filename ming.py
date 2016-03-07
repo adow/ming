@@ -14,10 +14,81 @@ import time
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
 
-
 OUTPUT_DIR = '_output'
 DOCUMENTS_DIR = '_documents'
 THEMES_DIR = '_themes'
+
+#time
+def now():
+    '''现在时间'''
+    return time.time()
+
+def time_to_long_string(t=now()):
+    '''时间转换成 yyyy-MM-dd HH:mm:ss'''
+    TIMEFORMAT="%Y-%m-%d %X"
+    return time.strftime(TIMEFORMAT,time.localtime(t))
+
+def now_long_string():
+    '''现在时间的字符串'''
+    return time_to_long_string()
+
+def today_str():
+    '''今天的日期'''
+    return str(datetime.date.today())
+
+def date_to_string(t=now()):
+    '''日期转换成字符串 yyyy-MM-dd'''
+    TIMEFORMAT="%Y-%m-%d"
+    return time.strftime(TIMEFORMAT,time.localtime(t))
+
+def string_to_time_float(string):
+    '''字符串转时间'''
+    if string is None or string =='':
+        return 0
+    if ':' not in string:
+        string+=" 00:00:00"
+    TIMEFORMAT="%Y-%m-%d %H:%M:%S"
+    t=time.strptime(string,TIMEFORMAT)
+    return time.mktime(t)
+
+def string_to_date_float(string):
+    '''字符串转日期'''
+    TIMEFORMAT="%Y-%m-%d"
+    t=time.strptime(string,TIMEFORMAT)
+    return time.mktime(t)
+
+def string_to_time(string):
+    '''字符串转时间'''
+    if string is None or string =='':
+        return 0
+    if ':' not in string:
+        string+=" 00:00:00"
+    TIMEFORMAT="%Y-%m-%d %H:%M:%S"
+    t=time.strptime(string,TIMEFORMAT)
+    return t
+
+def string_to_date(string):
+    '''字符串转日期'''
+    TIMEFORMAT="%Y-%m-%d"
+    t=time.strptime(string,TIMEFORMAT)
+    return t
+
+def make_runat_seconds(hours,minutes=0,seconds=0):
+    '''从0点到现在的秒数'''
+    return hours*60*60+minutes*60+seconds
+
+def now_seconds():
+    '''现在的秒数'''
+    t=time.localtime()
+    return make_runat_seconds(t.tm_hour,t.tm_min,t.tm_sec)
+
+def start_of_today():
+    '''今天开始的时间'''
+    return time.time()-now_seconds() 
+
+def end_of_today():
+    '''今天结束的时间'''
+    return start_of_today()+3600*24
 
 # config
 class Modal(dict):
@@ -77,126 +148,111 @@ class Config(Modal):
         for (k,v) in d.items():
             self[k] = v
 
+# Article
 class Article(Modal):
-    '''文章'''
     def __init__(self,article_filename):
-        super(Article,self).__init__()
-        self.article_filename = os.path.join(DOCUMENTS_DIR,article_filename)
-        self.article_config = Config()
-        self.markdown = ''
-        self.markdown_without_title = ''
-        self.article_mtime = 0
-        self._load_article_config() # 先读取配置文件
-        self._parse_markdown_from_article() # 解析内容
+        super(Article,self).__init__() 
+        self._article_filename = article_filename 
+        self._article_filepath = os.path.join(DOCUMENTS_DIR,article_filename)
+        self._article_config_filepath = self._article_filepath + '.json'
+        self._markdown = ''
+        self._markdown_without_title = ''
+        self._mtime = 0
+        self._sort_value = 0 # 这个值用于列表排序, 他从 article_publish_date 中获取，如果没有，就是文章的修改时间
+        self._load_config()
+        self._parse_markdown()
 
-    def _parse_markdown_from_article(self):
-        ''' 解析 markdown '''
-        if not os.path.exists(self.article_filename):
-            raise Exception('Article not found:%s'%(self.article_filename,))
-        self.article_mtime = os.stat(self.article_filename).st_mtime #修改时间
-        f = open(self.article_filename)
-        self.markdown = f.read()
+    def _load_config(self):
+        '''加载配置文件'''
+        config = Config()
+        config.load_article_config(self._article_config_filepath)
+        for (k,v) in config.items():
+            self[k] = v
+
+    def _parse_markdown(self):
+        if not os.path.exists(self._article_filepath):
+            return
+        self._mtime = os.stat(self._article_filepath).st_mtime
+        self._sort_value = self._mtime
+        f = open(self._article_filepath)
+        self._markdown = f.read()
         f.close()
-        self.markdown_without_title = self.markdown
-        lines = self.markdown_without_title.split('\n')
+        # article_title
+        self._markdown_without_title = self._markdown
+        lines = self._markdown_without_title.split('\n')
         if lines:
             first_line = lines[0]
             if first_line.startswith('#'):
-                # 配置中没有标题的话就从文章里取一个
-                if not self.article_config.article_title:
+                if not self.article_title:
                     title_from_markdown = first_line[1:].strip()
-                    self.article_config.article_title = title_from_markdown
-                # 输出到 html 的时候要去掉标题
-                if len(lines):
-                    self.markdown_without_title = '\n'.join(lines[1:])
-        # 如果没有标题就用默认的
-        if not self.article_config.article_title:
-            self.article_config.article_title = 'Untitled'
-        # 获取文章的链接
-        if not self.article_config.article_link:
-            self.article_config.article_link = self.article_config.article_title + '.html'
-
-    def _load_article_config(self):
-        ''' 读取配置文件'''
-        article_config_filename = self.article_filename + '.json'
-        self.article_config.load_article_config(article_config_filename)
+                    self.article_title = title_from_markdown
+                self._markdown_without_title = '\n'.join(lines[1:])
+        # _sort_value 
+        if self.article_publish_date:
+            if ':' in self.article_publish_date:
+                self._sort_value = string_to_time_float(self.article_publish_date)
+            else:
+                self._sort_value = string_to_date_float(self.article_publish_date)
+        else:
+            self.article_publish_date = date_to_string(self._mtime)
 
     def render_html(self):
-        '''使用模板渲染到 html'''
-        article_html = render(self.markdown_without_title.decode('utf-8'))
-        theme_name = self.article_config.get('themes','default')
+        self._article_html = render(self._markdown_without_title.decode('utf-8'))
+        theme_name = self.themes or 'default'
         env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
         theme = env.get_template('article.html')
         theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
-        html = theme.render(theme_dir = theme_dir, 
-                content = article_html , 
-                article_config = self.article_config)
-        print self.article_config
+        html = theme.render(theme_dir = theme_dir,article = self)
         return html
 
     def generate_html(self):
-        '''输出到 html 文件'''
         html = self.render_html()
-        if not self.article_config.article_link:
+        if not self.article_link:
             raise Exception('No Article Link')
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
-                self.article_config.article_link)
+                self.article_link)
         print output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
 
-def generate_article_table():
-    '''获取全部的文章列表'''
-    _t_start = time.time()
-    folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
-    name_list = os.listdir(folder)
-    file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
-    file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
-    #print file_name_list
-    article_table = {}
-    for f in file_name_list:
-        _,filename = os.path.split(f)
-        article = Article(filename)
-        #del article['markdown']
-        #del article['markdown_without_title']
-        link = article.article_config.article_link
-        article_table[link] = article
-    _t_end = time.time()
-    print (_t_end - _t_start)
-    #print article_table
-    return article_table
-
-def prepare_articles():
-    '''返回 url 和文章关联列表，同时返回排序后的链接列表'''
-    folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
-    name_list = os.listdir(folder)
-    file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
-    file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
-    article_table = {}
-    for f in file_name_list:
-        _,filename = os.path.split(f)
-        article = Article(filename)
-        link = article.article_config.article_link
-        article_table[link] = article
-    def _cmp(link_1, link_2):
-        article_1 = article_table.get(link_1)
-        article_2 = article_table.get(link_2)
-    link_list = article_table.keys() #TODO: 排序的链接列表
-    return (article_table,link_list)
-
 class SiteMaker(object):
     def __init__(self):
         super(SiteMaker,self).__init__()
-        self.article_table,self.link_list = prepare_articles() 
+        self.article_table = {}
+        self.link_list = []
+        self._prepare_articles()
+
+    def _prepare_articles(self):
+        folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
+        name_list = os.listdir(folder)
+        file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
+        file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
+        self.article_table = {}
+        for f in file_name_list:
+            _,filename = os.path.split(f)
+            article = Article(filename)
+            link = article.article_link
+            self.article_table[link] = article
+        def _cmp(link_1, link_2):
+            article_1 = self.article_table.get(link_1)
+            article_2 = self.article_table.get(link_2)
+            return article_1._sort_value > article_2._sort_value
+        self.link_list = self.article_table.keys() 
+        self.link_list.sort(_cmp) # 排序的链接列表
+
+    def index_article(self):
+        top_link = self.link_list[0]
+        article = self.article_table[top_link]
+        return article
 
     def make_article(self,article_filename):
         _,ext = os.path.splitext(article_filename)
         if not ext:
             article_filename += '.md'
-        article = Article(article_filename = article_filename)
+        article = Article(article_filename)
         article.generate_html()
 
     def make_archive(self):
@@ -238,17 +294,6 @@ class SiteMaker(object):
         # 依次生成每一篇文章
 
 # cli
-def make_article():
-    if len(sys.argv) < 3:
-        print 'no article specificed' 
-        return
-    article_filename = sys.argv[2]
-    _,ext = os.path.splitext(article_filename)
-    if not ext:
-        article_filename += '.md'
-    article = Article(article_filename = article_filename)
-    article.generate_html()
-
 def cli_make_article():
     if len(sys.argv) < 3:
         print 'no article specificed' 

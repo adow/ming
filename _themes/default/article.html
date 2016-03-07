@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ article_config['site_title'] }}</title>
+  <title>{{ article['site_title'] }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
@@ -11,9 +11,9 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><span class = 'site-name-desktop'>{{ article_config['site_title'] }}</span><span class = 'site-name-mobile'>{{ article_config['site_title_mobile']  }}</span></div>
+      <div class = 'site-name'><span class = 'site-name-desktop'>{{ article.site_title }}</span><span class = 'site-name-mobile'>{{ article.site_title_mobile  }}</span></div>
       <ul class = 'site-links'>
-        {% for link in article_config.site_links %}
+        {% for link in article.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
         {% endfor %}
       </ul>
@@ -26,7 +26,7 @@
       <a class = 'site-links-mobile-close' href = '#'>close</a>
       <div class="clearfix"></div>
       <ul>
-        {% for link in article_config.site_links %}
+        {% for link in article.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
         {% endfor %}
       </ul>
@@ -35,18 +35,18 @@
     <div id ='article-header'>
       <div id = 'article-header-gradient'></div>
       <div id = 'article-header-container'>
-        {% if article_config['article_category'] %}
-        <small class = 'category-mobile'>{{ article_config['article_category'] }}</small>
+        {% if article['article_category'] %}
+        <small class = 'category-mobile'>{{ article['article_category'] }}</small>
         {% endif %}
         <div class = 'article-header-category-title-line'></div>
         <h1>
-          {{ article_config['article_title'] or 'Title' }}
-          {% if article_config['article_category'] %}
-          <small class = 'category-desktop'>{{ article_config['article_category'] }}</small>
+          {{ article.article_title or 'Title' }}
+          {% if article['article_category'] %}
+          <small class = 'category-desktop'>{{ article['article_category'] }}</small>
           {% endif %}
         </h1>
-        <h3>{{ article_config['article_subtitle'] or 'Subtitle' }}</h3>
-        <p class = 'publish-date'>{{ article_config['author'] }} 发布于 {{ article_config['article_publish_date'] }}</p>
+        <h3>{{ article['article_subtitle'] or 'Subtitle' }}</h3>
+        <p class = 'publish-date'>{{ article['author'] }} 发布于 {{ article['article_publish_date'] }}</p>
       </div>
     </div> 
     <div id="article-content">
@@ -54,34 +54,34 @@
       
       <div class = 'article-author'>
         <div class = 'article-author-avatar'>
-          {% if article_config["author_avatar"] %}
-          <a href=''><img src='{{ article_config["author_avatar"] }}'/></a> 
+          {% if article["author_avatar"] %}
+          <a href=''><img src='{{ article["author_avatar"] }}'/></a> 
           {% else %}
           <p>作者</p>
           {% endif %}
         </div>   
         <p class = 'm-t-30'>
-          {{ article_config['author'] }} 
+          {{ article['author'] }} 
         </p>
-        {% if article_config['author_status'] %}
+        {% if article['author_status'] %}
         <p>
-          {{ article_config['author_status'] }}
+          {{ article['author_status'] }}
         </p>
         {% endif %}
         <div class = 'clearfix'></div>
         <div class = 'article-author-social'>
           <ul>
-            {% if article_config['author_weibo'] %}
-            <li><a href = '{{ article_config["author_weibo"] }}'><img src = '{{ theme_dir }}/images/sina-weibo.png'/></a></li> 
+            {% if article['author_weibo'] %}
+            <li><a href = '{{ article["author_weibo"] }}'><img src = '{{ theme_dir }}/images/sina-weibo.png'/></a></li> 
             {% endif %}
-            {% if article_config['author_github'] %}
-            <li><a href = '{{ article_config["author_github"] }}'><img src = '{{ theme_dir }}/images/github.png'/></a></li> 
+            {% if article['author_github'] %}
+            <li><a href = '{{ article["author_github"] }}'><img src = '{{ theme_dir }}/images/github.png'/></a></li> 
             {% endif %}
-            {% if article_config['author_instagram'] %}
-            <li><a href = '{{ article_config["author_instagram"] }}'><img src = '{{ theme_dir }}/images/instagram.png'/></a></li> 
+            {% if article['author_instagram'] %}
+            <li><a href = '{{ article["author_instagram"] }}'><img src = '{{ theme_dir }}/images/instagram.png'/></a></li> 
             {% endif %}
-            {% if article_config['author_twitter'] %}
-            <li><a href = '{{ article_config["author_twitter"] }}'><img src = '{{ theme_dir }}/images/twitter.png'/></a></li>
+            {% if article['author_twitter'] %}
+            <li><a href = '{{ article["author_twitter"] }}'><img src = '{{ theme_dir }}/images/twitter.png'/></a></li>
             {% endif %}
           </ul>
         </div>
