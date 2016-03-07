@@ -198,11 +198,19 @@ class Article(Modal):
 
     def render_html(self):
         self._article_html = render(self._markdown_without_title.decode('utf-8'))
+        # css
+        d_css = {}
+        for (selector,d_value) in self.css.items():
+            css_v = "{"
+            for k,v in d_value.items():
+                css_v += '%s:%s;'%(k,v,)
+            css_v += "}"
+            d_css[selector] = css_v
         theme_name = self.themes or 'default'
         env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
         theme = env.get_template('article.html')
         theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
-        html = theme.render(theme_dir = theme_dir,article = self)
+        html = theme.render(theme_dir = theme_dir,article = self,d_css = d_css)
         return html
 
     def generate_html(self):

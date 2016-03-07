@@ -7,6 +7,11 @@
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
   <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
+   <style type="text/css">
+    {% for (selector,value) in d_css.items() %}
+    {{ selector }} {{value}}
+    {% endfor %}
+  </style>  
 </head>
 <body>
   <div id="layout-container">
@@ -50,7 +55,7 @@
       </div>
     </div> 
     <div id="article-content">
-      {{ content }}
+      {{ article._article_html }}
       
       <div class = 'article-author'>
         <div class = 'article-author-avatar'>
