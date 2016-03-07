@@ -236,8 +236,8 @@ class SiteMaker(object):
     def _prepare_articles(self):
         folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
         name_list = os.listdir(folder)
-        file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN']]
-        file_name_list.sort(lambda f1,f2: os.stat(f2).st_mtime - os.stat(f1).st_mtime)
+        file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN'] and not f.startswith('_')]
+        file_name_list.sort(lambda f1,f2: int(os.stat(f2).st_mtime) - int(os.stat(f1).st_mtime))
         self.article_table = {}
         for f in file_name_list:
             _,filename = os.path.split(f)

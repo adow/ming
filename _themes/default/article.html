@@ -116,14 +116,67 @@ window.onscroll = function(){
   else {
     site_nav.css('visibility','visible');
   }
+};
+
+$(document).ready(function(){
+
+  $('.site-menu').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','block');
+      });
+  $('.site-links-mobile-close').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','none');
+      });
+  /// resize images when resize window
+  $(window).resize(function(){
+      var screen_width = $(window).width() 
+      //console.log(screen_width);
+      var img_list = $('#article-content p img');
+      img_list = [].slice.call(img_list);
+      for (var a in img_list) {
+        var img_dom = img_list[a];
+        var img = $(img_dom);
+        resize_img(img); 
+      }
+      });
+
+  /// resize images when loaded
+  var img_list = $('#article-content p img');
+  img_list = [].slice.call(img_list);
+  for (var a in img_list) {
+    var img_dom = img_list[a];
+    var img = $(img_dom);
+    img.load(function(){
+        resize_img($(this)); 
+
+    });
+  }
+});
+
+
+
+
+function resize_img(img){
+  var screen_width = $(window).width();
+  var p = img.parent();
+  var p_padding = screen_width > 768.0 ? '60':'30';
+  var natural_width = img[0].naturalWidth;
+  if (screen_width + 60.0 < natural_width ){
+    img.css('width',screen_width)
+      .css('max-width','none')
+      .css('margin-left', -1.0 * p_padding)
+      .css('margin-right',-1.0 * p_padding)
+      ;
+    img.parent().css('max-width','none');
+  }
+  else {
+    img.css('max-width','100%')
+      .css('margin-left','auto')
+      .css('margin-right','auto');
+    var p_max = screen_width > 768.0 ? '800.0' :'768.0';
+    img.parent().css('max-width',p_max);
+  }
 }
-$('.site-menu').click(function(){
-    var site_links_mobile = $('#site-links-mobile');
-    site_links_mobile.css('display','block');
-    });
-$('.site-links-mobile-close').click(function(){
-    var site_links_mobile = $('#site-links-mobile');
-    site_links_mobile.css('display','none');
-    });
 </script>
 </html>

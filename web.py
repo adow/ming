@@ -35,53 +35,24 @@ class ArticlePage(tornado.web.RequestHandler):
         html = article.render_html()
         self.write(html)
 
-class ThemePage(tornado.web.RequestHandler):
+# themes
+class ThemeArticle(tornado.web.RequestHandler):
     '''模板预览页面'''
-    def get(self):
-        url = self.request.path
-        (theme_dir,theme_filename) = os.path.split(url)
-        print theme_dir
-        print theme_filename
-        d_theme,d_name = map(lambda s:s.replace('/',''),
-                os.path.split(theme_dir))
-        print d_theme
-        print d_name
-        env = Environment(loader = PackageLoader(d_theme,d_name))
-        theme = env.get_template(theme_filename)
-        article_html = '''
-        <p>
-          In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p> 
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-          <blockquote>
-          In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </blockquote>
-          <h2>
-            Subtitle for Codes 
-          </h2>
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-          <img src="/_themes/default/images/article-image.png" alt=""/>
-          <p>
-    In hac habitasse platea dictumst. Vivamus adipiscing fermentum quam volutpat aliquam. Integer et elit eget elit facilisis tristique. Nam vel iaculis mauris. Sed ullamcorper tellus erat, non ultrices sem tincidunt euismod. Fusce rhoncus porttitor velit, eu bibendum nibh aliquet vel. Fusce lorem leo, vehicula at nibh quis, facilisis accumsan turpis.
-          </p>
-        '''
-        html = theme.render(theme_dir = theme_dir, content = article_html,
-                article_config = {})
+    def get(self,theme_name):
+        article = Article('_ming.md')
+        article.theme = theme_name
+        html = article.render_html()
         self.write(html)
 
+class ThemeAbout(tornado.web.RequestHandler):
+    def get(self,theme_name):
+        self.write('about')
+
+class ThemeArchive(tornado.web.RequestHandler):
+    def get(self,theme_name):
+        self.write('archive')
+
+# site
 class SitePage(tornado.web.RequestHandler):
     def get(self,name):
         filename = os.path.join(OUTPUT_PATH,'%s.html'%(name,))
@@ -93,6 +64,7 @@ class SitePage(tornado.web.RequestHandler):
         f.close()
         self.write(s)
 
+# cli
 class CliPage (tornado.web.RequestHandler):
     def get(self,cmd = 'help'):
         script = 'python ming.py %s'%(cmd,)
@@ -160,7 +132,13 @@ class WriterDash(tornado.web.RequestHandler):
         html += '</ul>'
         html += '<h2>Themes Development</h2>'
         html += '<ul>'
-        html += "<li><a href = '/_themes/default/index.html'>Default Theme</a></li>"
+        html += "<li><a>Default Theme</a></li>"
+        html += '<ul>'
+        html += "<li><a href = '/_themes/default/index.html'>index</a></li>"
+        html += "<li><a href = '/_themes/default/article.html'>article</a></li>"
+        html += "<li><a href = '/_themes/default/about.html'>about</a></li>"
+        html += "<li><a href = '/_themes/default/archive.html'>archive</a></li>"
+        html += '</ul>'
         html += '</ul>'
         self.write(html)
 
@@ -174,7 +152,10 @@ def start_local_server():
             (r'/_writer/(.*)(.md|.markdown)',WriterArticle),
             (r'/_writer/',WriterDash),
             (r'/_cli/(.*)',CliPage),
-            (r'/_themes/.*.html',ThemePage),
+            (r'/_themes/(.*)/article.html',ThemeArticle),
+            (r'/_themes/(.*)/index.html',ThemeArticle),
+            (r'/_themes/(.*)/about.html',ThemeAbout),
+            (r'/_themes/(.*)/archive.html',ThemeArchive),
             (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
             (r'/(.*).html',SitePage),
             ]
