@@ -98,7 +98,9 @@ class WriterIndex(tornado.web.RequestHandler):
 
 class WriterAbout(tornado.web.RequestHandler):
     def get(self):
-        self.write('about') 
+        article = Article('_about.md')
+        html = article.render_html()
+        self.write(html)
 
 class WriterDash(tornado.web.RequestHandler):
     def get(self):
