@@ -164,14 +164,14 @@ $(document).ready(function(){
 function resize_img(img){
   var screen_width = $(window).width();
   var p = img.parent();
-  var padding = screen_width - p_width
-  var p_padding = screen_width > 768.0 ? '60':'30';
   var natural_width = img[0].naturalWidth;
-  if (screen_width + 60.0 < natural_width ){
+  if (screen_width < natural_width ){
+    var p_width = p.width();
+    var padding = (screen_width - p_width) / 2.0;
     img.css('width',screen_width)
       .css('max-width','none')
-      .css('margin-left', -1.0 * p_padding)
-      .css('margin-right',-1.0 * p_padding)
+      .css('margin-left', -1.0 * padding)
+      .css('margin-right',-1.0 * padding)
       ;
     img.parent().css('max-width','none');
   }
