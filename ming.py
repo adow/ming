@@ -197,6 +197,7 @@ class Article(Modal):
             self.article_publish_date = date_to_string(self._mtime)
 
     def render_html(self):
+        self._load_next_previous_article() #载入上一篇和下一篇文章
         self._article_html = render(self._markdown_without_title.decode('utf-8'))
         # css
         d_css = {}
@@ -225,6 +226,22 @@ class Article(Modal):
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
+
+    def _load_next_previous_article(self):
+        '''载入上一篇和下一篇文章'''
+        site_maker = SiteMaker() 
+        link = self.article_link
+        pos = site_maker.link_list.index(link)
+        # 上一篇文章
+        if pos > 0 :
+            previous_pos = pos - 1
+            previous_link = site_maker.link_list[previous_pos]
+            self._previous_article = site_maker.article_table[previous_link]
+        # 下一篇文章
+        if pos < len(site_maker.link_list) - 1:
+            next_pos = pos + 1
+            next_link = site_maker.link_list[next_pos]
+            self._next_article = site_maker.article_table[next_link]
 
 class SiteMaker(object):
     def __init__(self):
@@ -309,6 +326,8 @@ def cli_make_article():
     article_filename = sys.argv[2]
     site_maker = SiteMaker()
     site_maker.make_article(article_filename)
+    site_maker.make_index()
+    site_maker.make_archive()
 
 def cli_make_archive():
     site_maker = SiteMaker()
@@ -325,6 +344,30 @@ def cli_make_index():
 def cli_make_site():
     site_maker = SiteMaker()
     site_maker.make_site()
+
+def cli_clean():
+    top = os.path.join(os.path.dirname(__file__),OUTPUT_DIR)
+    print top
+    for (root,dirs,files) in os.walk(top):
+        for one_file in files:
+            path = os.path.join(root,one_file)
+            print path
+            os.remove(path)
+        for one_dir in dirs:
+            path = os.path.join(root,one_dir)
+            print path
+            os.rmdir(path)
+
+def cli_init():
+    params = sys.argv[2:] if len(sys.argv) > 2 else []
+    # TODO: site.json
+    site_json = {}
+    # TODO: _documents
+    # TODO: _documents/_ming.md, _documents/_ming.md.json
+    # TODO: _themes
+    # TODO: _themes/default
+    # TODO: _output
+    pass
 
 def help():
     print 'ming local-server: start local web server' 
@@ -358,4 +401,5 @@ if __name__ == '__main__':
             'make-about':cli_make_about,
             'make-index': cli_make_index,
             'make-site': cli_make_site,
+            'clean':cli_clean,
             'test':test}.get(cmd,help)()

@@ -93,8 +93,12 @@
       </div>
       <div class="article-navigation">
         <ul>
-          <li class = 'next'>下一篇: <a href = ''>Next Title for Article</a></li> 
-          <li class = 'previous'>上一篇: <a href = ''>Previous Title for Article</a></li> 
+          {% if article._next_article %}
+          <li class = 'next'>下一篇: <a href = '{{ article._next_article.article_link }}'> {{ article._next_article.article_title }}</a></li> 
+          {% endif %}
+          {% if article._previous_article %}
+          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article.article_link }}'>{{ article._previous_article.article_title }}</a></li> 
+          {% endif %}
         </ul>
       </div>
       <div class="clearfix"></div>
@@ -160,6 +164,7 @@ $(document).ready(function(){
 function resize_img(img){
   var screen_width = $(window).width();
   var p = img.parent();
+  var padding = screen_width - p_width
   var p_padding = screen_width > 768.0 ? '60':'30';
   var natural_width = img[0].naturalWidth;
   if (screen_width + 60.0 < natural_width ){
