@@ -94,10 +94,10 @@
       <div class="article-navigation">
         <ul>
           {% if article._next_article %}
-          <li class = 'next'>下一篇: <a href = '{{ article._next_article.article_link }}'> {{ article._next_article.article_title }}</a></li> 
+          <li class = 'next'>下一篇: <a href = '{{ article._next_article._article_filename }}'> {{ article._next_article.article_title }}</a></li> 
           {% endif %}
           {% if article._previous_article %}
-          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article.article_link }}'>{{ article._previous_article.article_title }}</a></li> 
+          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article._article_filename }}'>{{ article._previous_article.article_title }}</a></li> 
           {% endif %}
         </ul>
       </div>
