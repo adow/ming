@@ -231,6 +231,8 @@ class Article(Modal):
         '''载入上一篇和下一篇文章'''
         site_maker = SiteMaker() 
         link = self.article_link
+        if link not in site_maker.link_list:
+            return
         pos = site_maker.link_list.index(link)
         # 上一篇文章
         if pos > 0 :
@@ -303,14 +305,9 @@ class SiteMaker(object):
         f.close()
 
     def make_about(self):
-        html = 'about.html'
-        if not os.path.exists(OUTPUT_DIR):
-            os.makedirs(OUTPUT_DIR)
-        output_filename = os.path.join(OUTPUT_DIR, 'about.html')
-        print output_filename
-        f = open(output_filename,'w')
-        f.write(html)
-        f.close()
+        article_filename = '_about.md'
+        article = Article(article_filename)
+        article.generate_html()
 
     def make_site(self):
         self.make_index()
