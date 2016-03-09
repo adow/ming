@@ -377,6 +377,9 @@ code {
 #article-content .article-navigation ul li, #article-content .article-navigation ul li a {
   color: #9b9b9b;
 }
+#article-content #disqus_thread {
+  margin-top: 60px;
+}
 #article-content .footer {
   margin-top: 60px;
   margin-bottom: 10px;
