@@ -49,8 +49,14 @@ class ThemeAbout(tornado.web.RequestHandler):
         self.write('about')
 
 class ThemeArchive(tornado.web.RequestHandler):
-    def get(self,theme_name):
-        self.write('archive')
+    def get(self,theme_name = 'default'):
+        #self.write('archive')
+        site_maker = SiteMaker()
+        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
+        theme = env.get_template('archive.html')
+        theme_dir = os.path.join('/',THEMES_DIR,theme_name)
+        html = theme.render(theme_dir = theme_dir, article = site_maker, d_css = {})
+        self.write(html)
 
 # site
 class SitePage(tornado.web.RequestHandler):
@@ -76,10 +82,7 @@ class CliPage (tornado.web.RequestHandler):
 class WriterArchive(tornado.web.RequestHandler):
     def get(self):
         site_maker = SiteMaker()
-        for (l,a) in site_maker.article_table.items():
-            del a['_markdown']
-            del a['_markdown_without_title']
-        s = json.dumps(site_maker.article_table)
+        s = site_maker.render_archive()
         self.write(s)
 
 class WriterArticle(tornado.web.RequestHandler):

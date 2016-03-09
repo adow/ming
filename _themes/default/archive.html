@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ site['site_title'] }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
+  <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
+   <style type="text/css">
+    
+  </style>  
+</head>
+<body>
+  <div id="layout-container">
+    <div id = 'site-nav'>
+      <div class = 'site-name'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span><span class = 'site-name-mobile color-gray'>{{ site.site_title_mobile  }}</span></div>
+      <ul class = 'site-links color-gray'>
+        {% for link in site.site_links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class = 'site-menu'>
+        <a href='#'><img src= '{{ theme_dir }}/images/menu-gray.png'/></a> 
+      </div>
+      
+    </div>
+    <div id = 'site-links-mobile'>
+      <a class = 'site-links-mobile-close color-gray' href = '#'>close</a>
+      <div class="clearfix"></div>
+      <ul>
+        {% for link in site.site_links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class ='clearfix'></div>
+    <div id = 'archive'>
+      <h1>Archive</h1>
+      <div class = 'archive-year'>
+        {% for (year,article_list) in archive.items() %}
+        <h2>2016</h2>
+        <div class = 'line-year'></div>
+        {% for article in article_list %}
+        <div class = 'article-list-item'>
+          <h3>{{ article.article_title }} </h3> 
+          <p class = 'subtitle'>{{ article.article_subtitle }}</p>
+          <p class = 'publish-date'>{{ article.article_publish_date }}</p>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+<script type = 'text/javascript'>
+window.onscroll = function(){
+  var document_top = document.documentElement.scrollTop;
+  var body_top = document.body.scrollTop;
+  //console.log(document_top.toString() + ',' + body_top.toString());
+  var site_nav = $('#site-nav');
+  if (body_top >= 100.0) {
+    site_nav.css('visibility','hidden');
+  }
+  else {
+    site_nav.css('visibility','visible');
+  }
+};
+$(document).ready(function(){
+  $('.site-menu').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','block');
+      });
+  $('.site-links-mobile-close').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','none');
+      });
+});
+</script>
+</html>

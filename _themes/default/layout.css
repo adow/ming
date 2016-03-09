@@ -24,6 +24,9 @@ h3 {
 .m-b-30 {
   margin-bottom: 30px !important;
 }
+.color-gray, a.color-gray, .color-gray a {
+  color: #4a4a4a !important;
+}
 .clearfix {
   clear: both;
 }
@@ -385,4 +388,58 @@ code {
 #article-content .footer {
   text-align: left;
 }
+}
+#archive {
+  margin: 35px auto;
+  max-width: 800px;
+  text-align: center;
+}
+#archive h1 {
+  margin: 237px 30px 35px 30px;
+  text-align: center;
+}
+#archive h2 {
+  margin: 35px;
+  font-size: 24px;
+  font-weight: 700;
+}
+#archive h3 {
+  font-size: 17px;
+  font-weight: 400;
+  margin: 0px;
+}
+#archive p {
+  font-size: 17px;
+  font-weight: 400;
+  margin: 0px;
+  line-height: 2;
+}
+#archive .archive-year {
+}
+#archive .archive-year .line-year {
+  margin: 35px auto;
+  max-width: 400px;
+  height: 1.0px;
+  background-color: #4a4a4a;
+}
+@media screen and (max-width: 768px) {
+#archive .archive-year .line-year {
+  max-width: 200px;
+}
+}
+
+#archive .article-list-item {
+  margin: 35px 0px;
+}
+#archive .article-list-item p.subtitle {
+  margin: 0px auto;
+  font-size: 17px;
+  color: #9b9b9b;
+  font-weight: 400;
+  max-width: 400px;
+}
+#archive .article-list-item p.publish-date {
+  color: #9b9b9b;
+  font-size: 14px;
+  font-weight: 400;
 }

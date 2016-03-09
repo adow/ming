@@ -245,12 +245,20 @@ class Article(Modal):
             next_link = site_maker.link_list[next_pos]
             self._next_article = site_maker.article_table[next_link]
 
-class SiteMaker(object):
+    
+
+class SiteMaker(Modal):
     def __init__(self):
         super(SiteMaker,self).__init__()
         self.article_table = {}
         self.link_list = []
+        self._load_config()
         self._prepare_articles()
+
+    def _load_config(self):
+        config = Config()
+        for (k,v) in config.items():
+            self[k] = v
 
     def _prepare_articles(self):
         folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
@@ -266,7 +274,7 @@ class SiteMaker(object):
         def _cmp(link_1, link_2):
             article_1 = self.article_table.get(link_1)
             article_2 = self.article_table.get(link_2)
-            return article_1._sort_value > article_2._sort_value
+            return int(article_2._sort_value - article_1._sort_value)
         self.link_list = self.article_table.keys() 
         self.link_list.sort(_cmp) # 排序的链接列表
 
@@ -274,6 +282,32 @@ class SiteMaker(object):
         top_link = self.link_list[0]
         article = self.article_table[top_link]
         return article
+
+    def archive(self):
+        '''按年列出文件列表'''
+        d = {}
+        for link in self.link_list:
+            article = self.article_table[link]
+            col = article.article_publish_date.split('-')
+            year = col[0]
+            if year not in d:
+                l = [article,]
+                d[year] = l
+            else:
+                l = d[year]
+                l.append(article)
+                d[year] = l
+        return d
+
+    def render_archive(self):
+        d_archive = self.archive()
+        theme_name = self.themes or 'default'
+        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
+        theme = env.get_template('archive.html')
+        theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
+        html = theme.render(theme_dir = theme_dir,site=self,
+                archive = d_archive)
+        return html
 
     def make_article(self,article_filename):
         _,ext = os.path.splitext(article_filename)
@@ -283,7 +317,8 @@ class SiteMaker(object):
         article.generate_html()
 
     def make_archive(self):
-        html = 'archive.html'
+        #html = 'archive.html'
+        html = self.render_archive()
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR, 'archive.html')
