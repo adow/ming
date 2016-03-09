@@ -418,7 +418,7 @@ code {
 }
 #archive .archive-year .line-year {
   margin: 35px auto;
-  max-width: 400px;
+  max-width: 300px;
   height: 1.0px;
   background-color: #4a4a4a;
 }
@@ -430,6 +430,8 @@ code {
 
 #archive .article-list-item {
   margin: 35px 0px;
+  padding-left: 35px;
+  padding-right: 35px;
 }
 #archive .article-list-item p.subtitle {
   margin: 0px auto;
