@@ -46,16 +46,17 @@ class ThemeArticle(tornado.web.RequestHandler):
 
 class ThemeAbout(tornado.web.RequestHandler):
     def get(self,theme_name):
-        self.write('about')
+        article = Article('_about.md')
+        article.theme = theme_name
+        html = article.render_html()
+        self.write(html)
 
 class ThemeArchive(tornado.web.RequestHandler):
     def get(self,theme_name = 'default'):
         #self.write('archive')
         site_maker = SiteMaker()
-        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
-        theme = env.get_template('archive.html')
-        theme_dir = os.path.join('/',THEMES_DIR,theme_name)
-        html = theme.render(theme_dir = theme_dir, article = site_maker, d_css = {})
+        site_maker.themes = theme_name
+        html = site_maker.render_archive()
         self.write(html)
 
 # site
