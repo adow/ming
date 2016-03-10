@@ -10,9 +10,11 @@ import getopt
 import copy
 import json
 import time
+import datetime
 
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
+from vendor import rfeed
 
 OUTPUT_DIR = '_output'
 DOCUMENTS_DIR = '_documents'
@@ -307,6 +309,25 @@ class SiteMaker(Modal):
                 archive = d_archive)
         return html
 
+    def render_feed(self):
+        item_list = []
+        for link in self.link_list:
+            article = self.article_table[link]
+            item = rfeed.Item(title = article.article_title,
+                    link = article.article_link,
+                    description = article.article_subtitle,
+                    author = article.author or '',
+                    guid = rfeed.Guid(article.article_link),
+                    pubDate = datetime.datetime.strptime(article.article_publish_date,'%Y-%m-%d'))
+            item_list.append(item)
+        feed = rfeed.Feed(title = self.site_title,
+                link = self.site_url,
+                description = '',
+                language = 'zh-cn',
+                lastBuildDate = datetime.datetime.now(),
+                items = item_list)
+        return feed.rss()
+
     def make_article(self,article_filename):
         _,ext = os.path.splitext(article_filename)
         if not ext:
@@ -342,10 +363,19 @@ class SiteMaker(Modal):
         article = Article(article_filename)
         article.generate_html()
 
+    def make_feed(self):
+        xml =  self.render_feed()
+        filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'feed.xml')
+        f = open(filename,'w')
+        f.write(xml)
+        f.close()
+        print filename
+
     def make_site(self):
         self.make_index()
         self.make_about()
         self.make_archive()
+        self.make_feed()
         # 依次生成每一篇文章
         for (link,article) in self.article_table.items():
             article.generate_html()
@@ -372,6 +402,10 @@ def cli_make_about():
 def cli_make_index():
     site_maker = SiteMaker()
     site_maker.make_index()
+
+def cli_make_feed():
+    site_maker = SiteMaker()
+    site_maker.make_feed()
 
 def cli_make_site():
     site_maker = SiteMaker()
@@ -432,6 +466,7 @@ if __name__ == '__main__':
             'make-archive':cli_make_archive,
             'make-about':cli_make_about,
             'make-index': cli_make_index,
+            'make-feed':cli_make_feed,
             'make-site': cli_make_site,
             'clean':cli_clean,
             'test':test}.get(cmd,help)()

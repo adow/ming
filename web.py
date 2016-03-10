@@ -61,8 +61,8 @@ class ThemeArchive(tornado.web.RequestHandler):
 
 # site
 class SitePage(tornado.web.RequestHandler):
-    def get(self,name):
-        filename = os.path.join(OUTPUT_PATH,'%s.html'%(name,))
+    def get(self,name,ext):
+        filename = os.path.join(OUTPUT_PATH,'%s%s'%(name,ext))
         if not os.path.exists(filename):
             self.write('%s not found'%(filename,))
             return
@@ -112,6 +112,13 @@ class WriterAbout(tornado.web.RequestHandler):
         html = article.render_html()
         self.write(html)
 
+class WriterFeed(tornado.web.RequestHandler):
+    def get(self):
+        site_maker = SiteMaker()
+        xml = site_maker.render_feed()
+        self.write(xml)
+        self.set_header('Content-Type','application/rss+xml')
+
 class WriterDash(tornado.web.RequestHandler):
     def get(self):
         html = '<h1>MING LocalServer</h1>'
@@ -132,6 +139,7 @@ class WriterDash(tornado.web.RequestHandler):
         html += "<li><a href = '/_writer/index.html'>首页</a></li>"
         html += "<li><a href = '/_writer/archive.html'>归档</a></li>"
         html += "<li><a href = '/_writer/about.html'>关于</a></li>"
+        html += "<li><a href = '/_writer/feed.xml'>Feed</a></li>"
         html += '</ul>'
         html += '<h3>Article List</h3>'
         html += '<ul>'
@@ -161,6 +169,7 @@ def start_local_server():
             (r'/_writer/index.html',WriterIndex),
             (r'/_writer/archive.html',WriterArchive),
             (r'/_writer/about.html',WriterAbout),
+            (r'/_writer/feed.xml',WriterFeed),
             (r'/_writer/(.*)(.md|.markdown|.html|.htm)',WriterArticle),
             (r'/_writer/',WriterDash),
             (r'/_cli/(.*)',CliPage),
@@ -169,7 +178,7 @@ def start_local_server():
             (r'/_themes/(.*)/about.html',ThemeAbout),
             (r'/_themes/(.*)/archive.html',ThemeArchive),
             (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
-            (r'/(.*).html',SitePage),
+            (r'/(.*)(.html|.xml)',SitePage),
             ]
 
     port = 8002
