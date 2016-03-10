@@ -89,9 +89,15 @@ class WriterArchive(tornado.web.RequestHandler):
 class WriterArticle(tornado.web.RequestHandler):
     def get(self,name,ext):
         filename = name + ext
-        article = Article(filename)
-        html = article.render_html()
-        self.write(html)
+        article = None
+        if ext in ['.md','.markdown']:
+            article = Article(filename)
+        else:
+            site_maker = SiteMaker()
+            article = site_maker.article_table[filename]
+        if article:
+            html = article.render_html()
+            self.write(html)
 
 class WriterIndex(tornado.web.RequestHandler):
     def get(self):
@@ -155,7 +161,7 @@ def start_local_server():
             (r'/_writer/index.html',WriterIndex),
             (r'/_writer/archive.html',WriterArchive),
             (r'/_writer/about.html',WriterAbout),
-            (r'/_writer/(.*)(.md|.markdown)',WriterArticle),
+            (r'/_writer/(.*)(.md|.markdown|.html|.htm)',WriterArticle),
             (r'/_writer/',WriterDash),
             (r'/_cli/(.*)',CliPage),
             (r'/_themes/(.*)/article.html',ThemeArticle),

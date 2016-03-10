@@ -21,7 +21,7 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><span class = 'site-name-desktop'>{{ article.site_title }}</span><span class = 'site-name-mobile'>{{ article.site_title_mobile  }}</span></div>
+      <div class = 'site-name'><span class = 'site-name-desktop'><a href = 'index.html'>{{ article.site_title }}</a></span><span class = 'site-name-mobile'><a href = 'index.html'>{{ article.site_title_mobile  }}</a></span></div>
       <ul class = 'site-links'>
         {% for link in article.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
@@ -99,10 +99,10 @@
       <div class="article-navigation">
         <ul>
           {% if article._next_article %}
-          <li class = 'next'>下一篇: <a href = '{{ article._next_article._article_filename }}'> {{ article._next_article.article_title }}</a></li> 
+          <li class = 'next'>下一篇: <a href = '{{ article._next_article.article_link }}'> {{ article._next_article.article_title }}</a></li> 
           {% endif %}
           {% if article._previous_article %}
-          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article._article_filename }}'>{{ article._previous_article.article_title }}</a></li> 
+          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article.article_link }}'>{{ article._previous_article.article_title }}</a></li> 
           {% endif %}
         </ul>
       </div>

@@ -42,6 +42,7 @@ h3 {
 #site-nav a {
   color: #fff;
   font-size: 17px;
+  text-decoration: none;
 }
 #site-nav > div > span {
   color: #fff;
@@ -436,12 +437,13 @@ code {
   padding-left: 35px;
   padding-right: 35px;
 }
-#archive .article-list-item p.subtitle {
+#archive .article-list-item p.subtitle,#archive .article-list-item p.subtitle a {
   margin: 0px auto;
   font-size: 17px;
   color: #9b9b9b;
   font-weight: 400;
   max-width: 400px;
+  text-decoration: none;
 }
 #archive .article-list-item p.publish-date {
   color: #9b9b9b;

@@ -245,8 +245,6 @@ class Article(Modal):
             next_link = site_maker.link_list[next_pos]
             self._next_article = site_maker.article_table[next_link]
 
-    
-
 class SiteMaker(Modal):
     def __init__(self):
         super(SiteMaker,self).__init__()
@@ -349,6 +347,8 @@ class SiteMaker(Modal):
         self.make_about()
         self.make_archive()
         # 依次生成每一篇文章
+        for (link,article) in self.article_table.items():
+            article.generate_html()
 
 # cli
 def cli_make_article():

@@ -14,7 +14,7 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span><span class = 'site-name-mobile color-gray'>{{ site.site_title_mobile  }}</span></div>
+      <div class = 'site-name'><a href = 'index.html'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span></a><span class = 'site-name-mobile color-gray'><a href = 'index.html'>{{ site.site_title_mobile  }}</a></span></div>
       <ul class = 'site-links color-gray'>
         {% for link in site.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
@@ -43,8 +43,10 @@
         <div class = 'line-year'></div>
         {% for article in article_list %}
         <div class = 'article-list-item'>
-          <h3>{{ article.article_title }} </h3> 
-          <p class = 'subtitle'>{{ article.article_subtitle }}</p>
+          <h3><a href = '{{article.article_link}}'>{{ article.article_title }}</a></h3> 
+          {% if article.article_subtitle %}
+          <p class = 'subtitle'><a href = "{{article.article_link}}">{{ article.article_subtitle }}</a></p>
+          {% endif %}
           <p class = 'publish-date'>{{ article.article_publish_date }}</p>
         </div>
         {% endfor %}

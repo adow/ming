@@ -9,9 +9,9 @@
             {"title":"Works",
                "url":""},
             {"title":"Archives",
-               "url":""},
+               "url":"archive.html"},
             {"title":"About",
-               "url":""}
+               "url":"about.html"}
         ],
     "author":"adow",
     "author_email":"reynoldqin@codingnext.com",
