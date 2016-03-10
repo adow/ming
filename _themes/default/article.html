@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ article['site_title'] }}</title>
+  <meta name="author" content="{{ article.author }}">
+  {% if article.site_description %}
+  <meta name="description" content="{{ article.site_description }}">
+  {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
   <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
+  <link rel="alternate" type="application/rss+xml" title="{{ article.site_title }}" href="feed.xml">
    <style type="text/css">
     {% for (selector,value) in d_css.items() %}
     {{ selector }} {{value}}
