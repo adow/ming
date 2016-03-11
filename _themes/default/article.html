@@ -60,7 +60,9 @@
           <small class = 'category-desktop'>{{ article['article_category'] }}</small>
           {% endif %}
         </h1>
-        <h3>{{ article['article_subtitle'] or 'Subtitle' }}</h3>
+        {% if article.article_subtitle %}
+        <h3>{{ article['article_subtitle'] }}</h3>
+        {% endif %}
         <p class = 'publish-date'>{{ article['author'] }} 发布于 {{ article['article_publish_date'] }}</p>
       </div>
     </div> 

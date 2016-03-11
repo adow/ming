@@ -328,6 +328,39 @@ class SiteMaker(Modal):
                 items = item_list)
         return feed.rss()
 
+    def create_article(self,name,title = 'untitled',link = None):
+        '''往 _documents 中添加一篇新文章'''
+        config = Config()
+        config.article_title = title
+        if not link:
+            config.article_link = title + '.html'
+        else:
+            config.article_link = link
+        del config['site_name']
+        del config['site_name_mobile']
+        del config['site_title']
+        del config['site_title_mobile']
+        del config['site_url']
+        del config['site_links']
+        _,ext = os.path.splitext(name)
+        if ext not in ['md','markdown']:
+            name += '.md'
+        if not title.startswith('#'):
+            title = '# ' + title
+        article_filename = os.path.join(DOCUMENTS_DIR,name)
+        print 'article:%s'%(article_filename,)
+        f = open(article_filename,'w')
+        f.write(title)
+        f.close()
+        article_config_filename = article_filename + '.json'
+        print 'article config:%s'%(article_config_filename,)
+        s = json.dumps(config)
+        f = open(article_config_filename,'w')
+        f.write(s)
+        f.close()
+        print 'article title:%s'%(title,)
+        print 'article link:%s'%(link,)
+
     def make_article(self,article_filename):
         _,ext = os.path.splitext(article_filename)
         if not ext:
@@ -391,6 +424,24 @@ def cli_make_article():
     site_maker.make_index()
     site_maker.make_archive()
 
+def cli_create_article():
+    opts,args = getopt.getopt(sys.argv[2:],"n:t:l:",["name=","title=","link="])
+    name = ''
+    title = 'untitled'
+    link = ''
+    for (op,value) in opts:
+        if op in ['-n','--name']:
+            name = value 
+        if op in ['-t','--title']:
+            title = value
+        if op in ['-l','--link']:
+            link = value
+    if not name:
+        print '-n or --name required'
+        return
+    site_maker = SiteMaker()
+    site_maker.create_article(name,title=title,link = link)
+
 def cli_make_archive():
     site_maker = SiteMaker()
     site_maker.make_archive()
@@ -437,6 +488,7 @@ def cli_init():
 
 def help():
     print 'ming local-server: start local web server' 
+    print 'ming create-article -n <articlename> -t <article title>'
     print 'ming make-article <article-name>: make html'
     print 'ming make-archive: make archive.html'
     print 'ming make-about: make about.html'
@@ -462,6 +514,7 @@ if __name__ == '__main__':
         params = sys.argv[2:] if len(sys.argv) > 2 else []
         from web import start_local_server 
         {'local-server':start_local_server,
+            'create-article':cli_create_article,
             'make-article':cli_make_article,
             'make-archive':cli_make_archive,
             'make-about':cli_make_about,
