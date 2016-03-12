@@ -1,17 +1,8 @@
 {
     "theme":"default",
-    "article_title":"About",
-    "article_subtitle":"A Missing Static Blog Tool",
+    "article_title":"关于我",
     "article_link":"about.html",
     "article_publish_date":"2016-03-01",
-    "author":"adow",
-    "author_email":"reynoldqin@gmail.com",
-    "author_status":"Coding for Life and Universe",
-    "author_avatar":"http://wx.qlogo.cn/mmopen/X3L5jTrqCsk1Hh0fy668qI9yAH3O11dSzzXzHicBNoGKqYvAKGwZicnMQicOwyeuCyibYjFHvJfXw9Njb7JC9gwF7saPkLb5epUK/0",
-    "author_weibo":"http://weibo.com/adow",
-    "author_twitter":"https://twitter.com/reynoldqin",
-    "author_instagram":"https://instagram.com/reynoldqin",
-    "author_github":"https://github.com/adow",
     "css":{
         
     }

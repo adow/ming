@@ -376,7 +376,7 @@ class SiteMaker(Modal):
         output_filename = os.path.join(OUTPUT_DIR, 'archive.html')
         print output_filename
         f = open(output_filename,'w')
-        f.write(html)
+        f.write(html.encode('utf-8'))
         f.close()
 
     def make_index(self):

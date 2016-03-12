@@ -106,10 +106,10 @@
       <div class="article-navigation">
         <ul>
           {% if article._next_article %}
-          <li class = 'next'>下一篇: <a href = '{{ article._next_article.article_link }}'> {{ article._next_article.article_title }}</a></li> 
+          <li class = 'next'>上一篇: <a href = '{{ article._next_article.article_link }}'> {{ article._next_article.article_title }}</a></li> 
           {% endif %}
           {% if article._previous_article %}
-          <li class = 'previous'>上一篇: <a href = '{{ article._previous_article.article_link }}'>{{ article._previous_article.article_title }}</a></li> 
+          <li class = 'previous'>下一篇: <a href = '{{ article._previous_article.article_link }}'>{{ article._previous_article.article_title }}</a></li> 
           {% endif %}
         </ul>
       </div>
@@ -137,7 +137,7 @@
       </script>
       <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
       <div class = 'footer'>
-        MING Production, with ming-default theme. 
+        Powered by MING 
       </div>
     </div>
   </div>

@@ -1,8 +1,9 @@
 # AWSQLiteDB
 
-[README in English](README-en.md)
 
 AWSQLiteDB a simple wrapper for libsqlite3.0 in Swift
+
+项目地址: [AWSQLiteDB](https://github.com/adow/AWSQLiteDB)
 
 ## 安装
 

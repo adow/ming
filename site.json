@@ -6,20 +6,18 @@
     "site_title_mobile":"CN",
     "site_url":"http://codingnext.com/",
     "site_links":[ 
-            {"title":"Works",
-               "url":""},
-            {"title":"Archives",
+            {"title":"归档",
                "url":"archive.html"},
-            {"title":"About",
+            {"title":"关于",
                "url":"about.html"}
         ],
     "author":"adow",
-    "author_email":"reynoldqin@codingnext.com",
-    "author_status":"Coding for Life and Universe",
+    "author_email":"reynoldqin@gmail.com",
+    "author_status":"What doesn't kill you makes you stronger",
     "author_avatar":"http://wx.qlogo.cn/mmopen/X3L5jTrqCsk1Hh0fy668qI9yAH3O11dSzzXzHicBNoGKqYvAKGwZicnMQicOwyeuCyibYjFHvJfXw9Njb7JC9gwF7saPkLb5epUK/0",
-    "author_weibo":"",
-    "author_twitter":"",
-    "author_instagram":"",
-    "author_github":"",
+    "author_weibo":"http://weibo.com/adow",
+    "author_twitter":"https://twitter.com/reynoldqin",
+    "author_instagram":"https://instagram.com/reynoldqin",
+    "author_github":"https://github.com/adow",
     "css":{}
 }

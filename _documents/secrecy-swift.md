@@ -1,6 +1,6 @@
 # SecrecySwift
 
-[Readme in English](README-en.md)
+项目地址: [SecrecySwift](https://github.com/adow/SecrecySwift)
 
 SecrecySwift ，通过包装 `CommonCrypto` 和 `Security.framework`,实现 Swift 下的摘要方法/AES/RSA加密和签名。
 
@@ -30,7 +30,7 @@ SecrecySwift ，通过包装 `CommonCrypto` 和 `Security.framework`,实现 Swif
 2. 运行 `Carthage update`, 获取 SecrecySwift;
 3. 拖动 `Carthage/Build/iOS` 下面的 `Secrecy.framwork` 到项目 `Targets`, `General` 设置标签的 `Linked Frameworks and Linraries` 中；
 
-	![secrecy-1](http://7vihfk.com1.z0.glb.clouddn.com/secrecy-1.png)
+	![secrecy-1](http://7vihfk.com1.z0.glb.clouddn.com/secrecy-1-800.jpg)
 	
 4. 在 `Targes` 的 `Build Phases` 设置中，点击 `+` 按钮，添加 `New Run Script Phase` 来添加脚本:
 
@@ -40,7 +40,7 @@ SecrecySwift ，通过包装 `CommonCrypto` 和 `Security.framework`,实现 Swif
 
 		$(SRCROOT)/Carthage/Build/iOS/Secrecy.framework
 		
-	![secrecy-2](http://7vihfk.com1.z0.glb.clouddn.com/secrecy-2.png)
+	![secrecy-2](http://7vihfk.com1.z0.glb.clouddn.com/secrecy-2-800.jpg)
 		
 ### 手动安装
 
@@ -294,7 +294,7 @@ CBC 模式可以指定 IV,如果不指定 IV 的话将用 0 填充;
 		
 ## 测试 
 
-* 如何在 Python 中验证和 SecrecySwift 相同功能的示例 [SecrecyTestPy/test.py](SecrecyTestPy/test.py)
+* 如何在 Python 中验证和 SecrecySwift 相同功能的示例 [SecrecyTestPy/test.py](https://github.com/adow/SecrecySwift/blob/master/SecrecTestPy/test.py)
 		
 ## References
 

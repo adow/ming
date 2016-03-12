@@ -381,7 +381,7 @@ code {
 #article-content #disqus_thread {
   margin-top: 60px;
 }
-#article-content .footer {
+.footer {
   margin-top: 60px;
   margin-bottom: 10px;
   text-align: center;
@@ -389,7 +389,7 @@ code {
   font-size: 14px;
 }
 @media screen and (max-width: 768px) {
-#article-content .footer {
+.footer {
   text-align: left;
 }
 }
