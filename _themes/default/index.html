@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ article_config['site_title'] }}</title>
+  {% if article.article_title %}  
+  <title>{{ article.article_title }}</title>
+  {% else %}
+  <title>{{ article.site_title }}</title>
+  {% endif %}
+  <meta name="author" content="{{ article.author }}">
+  {% if article.article_title %}
+  <meta name="description" content="{{article.site_title}} - {{ article.article_title }}">
+  {% elif article.site_description %}
+  <meta name="description" content="{{article.site_title}} - {{ article.site_description }}">
+  {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
