@@ -40,7 +40,7 @@ class ThemeArticle(tornado.web.RequestHandler):
     '''模板预览页面'''
     def get(self,theme_name):
         article = Article('_ming.md')
-        article.theme = theme_name
+        article.themes = theme_name
         html = article.render_html()
         self.write(html)
 
@@ -158,6 +158,15 @@ class WriterDash(tornado.web.RequestHandler):
         html += "<li><a href = '/_themes/default/article.html'>article</a></li>"
         html += "<li><a href = '/_themes/default/about.html'>about</a></li>"
         html += "<li><a href = '/_themes/default/archive.html'>archive</a></li>"
+        html += '</ul>'
+        html += '</ul>'
+        html += '<ul>'
+        html += "<li><a>Simple Theme</a></li>"
+        html += '<ul>'
+        html += "<li><a href = '/_themes/simple/index.html'>index</a></li>"
+        html += "<li><a href = '/_themes/simple/article.html'>article</a></li>"
+        html += "<li><a href = '/_themes/simple/about.html'>about</a></li>"
+        html += "<li><a href = '/_themes/simple/archive.html'>archive</a></li>"
         html += '</ul>'
         html += '</ul>'
         self.write(html)
