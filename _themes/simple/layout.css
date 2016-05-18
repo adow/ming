@@ -53,20 +53,6 @@ h3 {
   margin: 30px 0px 30px 30px;
 }
 }
-#site-nav > .site-name > .site-name-desktop {
-  display: inline;
-}
-#site-nav > .site-name > .site-name-mobile {
-  display: none;
-}
-@media screen and (max-width: 768px) {
-#site-nav > .site-name > .site-name-desktop {
-  display: none;
-}
-#site-nav > .site-name > .site-name-mobile {
-  display: inline;
-}
-}
 #site-nav > ul.site-links {
   list-style-type: none;
   margin: 30px 50px 30px 0px;
@@ -374,6 +360,9 @@ code {
   color: #9b9b9b;
 }
 #article-content #disqus_thread {
+  margin-top: 60px;
+}
+#article-content .jiathis_style {
   margin-top: 60px;
 }
 .footer {

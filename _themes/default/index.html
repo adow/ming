@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="google-site-verification" content="vTaWd72F_kJY6mNbfoCQuutuGdH1kSsg7o3F31b3wgg" />
+  <meta name="baidu-site-verification" content="6rfk66K9Nk" />
   {% if article.article_title %}  
   <title>{{ article.article_title }}</title>
   {% else %}
@@ -49,17 +51,17 @@
         <small class = 'category-mobile'>{{ article_config['article_category'] }}</small>
         {% endif %}
         <div class = 'article-header-category-title-line'></div>
-        <h1>
+        <h1 class = 'post-title'>
           {{ article_config['article_title'] or 'Title' }}
           {% if article_config['article_category'] %}
           <small class = 'category-desktop'>{{ article_config['article_category'] }}</small>
           {% endif %}
         </h1>
-        <h3>{{ article_config['article_subtitle'] or 'Subtitle' }}</h3>
-        <p class = 'publish-date'>{{ article_config['author'] }} 发布于 {{ article_config['article_publish_date'] }}</p>
+        <h3 class = 'post-subtitle'>{{ article_config['article_subtitle'] or 'Subtitle' }}</h3>
+        <p class = 'publish-date post-meta'>{{ article_config['author'] }} 发布于 {{ article_config['article_publish_date'] }}</p>
       </div>
     </div> 
-    <div id="article-content">
+    <div id="article-content" class = 'post'>
       {{ content }}
       
       <div class = 'article-author'>

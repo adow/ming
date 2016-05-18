@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="google-site-verification" content="vTaWd72F_kJY6mNbfoCQuutuGdH1kSsg7o3F31b3wgg" />
+  <meta name="baidu-site-verification" content="6rfk66K9Nk" />
   <title>{{ site['site_title'] }}</title>
   <meta name="author" content="{{ site.author }}">
   {% if site.site_description %}
@@ -19,7 +21,7 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><a href = 'index.html'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span></a><span class = 'site-name-mobile color-gray'><a href = 'index.html'>{{ site.site_title_mobile  }}</a></span></div>
+      <div class = 'site-name'><a href = 'index.html'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span></a></div>
       <ul class = 'site-links color-gray'>
         {% for link in site.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
@@ -42,17 +44,17 @@
     <div class ='clearfix'></div>
     <div id = 'archive'>
       <h1>Archive</h1>
-      <div class = 'archive-year'>
+      <div class = 'archive-year post-list'>
         {% for (year,article_list) in archive.items() %}
         <h2>2016</h2>
         <div class = 'line-year'></div>
         {% for article in article_list %}
         <div class = 'article-list-item'>
-          <h3><a href = '{{article.article_link}}'>{{ article.article_title }}</a></h3> 
+          <h3 class = 'post-title'><a href = '{{article.article_link}}'>{{ article.article_title }}</a></h3> 
           {% if article.article_subtitle %}
-          <p class = 'subtitle'><a href = "{{article.article_link}}">{{ article.article_subtitle }}</a></p>
+          <p class = 'subtitle post-subtitle'><a href = "{{article.article_link}}">{{ article.article_subtitle }}</a></p>
           {% endif %}
-          <p class = 'publish-date'>{{ article.article_publish_date }}</p>
+          <p class = 'publish-date post-meta'>{{ article.article_publish_date }}</p>
         </div>
         {% endfor %}
         {% endfor %}

@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="google-site-verification" content="vTaWd72F_kJY6mNbfoCQuutuGdH1kSsg7o3F31b3wgg" />
+  <meta name="baidu-site-verification" content="6rfk66K9Nk" />
   {% if article.article_title %}  
   <title>{{ article.article_title }}</title>
   {% else %}
   <title>{{ article.site_title }}</title>
   {% endif %}
   <meta name="author" content="{{ article.author }}">
-  {% if article.article_title %}
-  <meta name="description" content="{{article.site_title}} - {{ article.article_title }}">
-  {% elif article.site_description %}
-  <meta name="description" content="{{article.site_title}} - {{ article.site_description }}">
-  {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
@@ -27,7 +24,7 @@
 <body>
   <div id="layout-container">
     <div id = 'site-nav'>
-      <div class = 'site-name'><span class = 'site-name-desktop'><a href = 'index.html'>{{ article.site_title }}</a></span><span class = 'site-name-mobile'><a href = 'index.html'>{{ article.site_title_mobile  }}</a></span></div>
+      <div class = 'site-name'><span class = 'site-name-desktop'><a href = 'index.html'>{{ article.site_title }}</a></span></div>
       <ul class = 'site-links'>
         {% for link in article.site_links %}
         <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
@@ -51,18 +48,18 @@
     <div id ='article-header'>
       <div id = 'article-header-container'>
         {% if article.article_head_photo %}
-        <img src = '{{ article.article_head_photo }}' class='head-photo'/>
+        <img src = '{{ article.article_head_photo }}' class='head-photo post-image'/>
         {% endif %} 
-        <h1>
+        <h1 class = 'post-title'>
           {{ article.article_title or 'Title' }}
         </h1>
         {% if article.article_subtitle %}
-        <h3>{{ article['article_subtitle'] }}</h3>
+        <h3 class = 'post-subtitle'>{{ article['article_subtitle'] }}</h3>
         {% endif %}
-        <p class = 'publish-date'>{{ article['author'] }} 发布于 {{ article['article_publish_date'] }}, {{article.article_category}}</p>
+        <p class = 'publish-date post-meta'>{{ article['author'] }} 发布于 {{ article['article_publish_date'] }}, {{article.article_category}}</p>
       </div>
     </div> 
-    <div id="article-content">
+    <div id="article-content" class = 'post'>
       {{ article._article_html }}
       
       <div class = 'article-author'>
@@ -99,6 +96,7 @@
           </ul>
         </div>
       </div>
+      
       <div class="article-navigation">
         <ul>
           {% if article._next_article %}
@@ -110,18 +108,33 @@
         </ul>
       </div>
       <div class="clearfix"></div>
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style"><span class="jiathis_txt">分享到：</span>
+      <a class="jiathis_button_tsina"></a>
+      <a class="jiathis_button_twitter"></a>
+      <a class="jiathis_button_weixin"></a>
+      <a class="jiathis_button_pocket"></a>
+      </div>
+      <script type="text/javascript" >
+      var jiathis_config={
+        summary:"",
+        shortUrl:false,
+        hideMore:false
+      }
+      </script>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+      <div class="clearfix"></div>
       <div id="disqus_thread"></div>
       <script>
       /**
       * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
       * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
       */
-      /*
       var disqus_config = function () {
-      this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
-      this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = '{{ article.site_url}}{{ article.article_link}}'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = '{{ article.article_link}}' // Replace PAGE_IDENTIFIER with your page's unique identifier variable
       };
-      */
       (function() { // DON'T EDIT BELOW THIS LINE
       var d = document, s = d.createElement('script');
 
