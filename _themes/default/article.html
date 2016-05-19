@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
   <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
-  <link rel="alternate" type="application/rss+xml" title="{{ article.site_title }}" href="feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ article.site_title }}" href="{{ article.site_url }}atom.xml">
    <style type="text/css">
     {% for (selector,value) in d_css.items() %}
     {{ selector }} {{value}}

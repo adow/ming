@@ -115,7 +115,7 @@ class WriterAbout(tornado.web.RequestHandler):
 class WriterFeed(tornado.web.RequestHandler):
     def get(self):
         site_maker = SiteMaker()
-        xml = site_maker.render_feed()
+        xml = site_maker.render_atom()
         self.write(xml)
         self.set_header('Content-Type','application/rss+xml')
 
@@ -139,7 +139,7 @@ class WriterDash(tornado.web.RequestHandler):
         html += "<li><a href = '/_writer/index.html'>首页</a></li>"
         html += "<li><a href = '/_writer/archive.html'>归档</a></li>"
         html += "<li><a href = '/_writer/about.html'>关于</a></li>"
-        html += "<li><a href = '/_writer/feed.xml'>Feed</a></li>"
+        html += "<li><a href = '/_writer/atom.xml'>Feed</a></li>"
         html += '</ul>'
         html += '<h3>Article List</h3>'
         html += '<ul>'
@@ -178,7 +178,7 @@ def start_local_server():
             (r'/_writer/index.html',WriterIndex),
             (r'/_writer/archive.html',WriterArchive),
             (r'/_writer/about.html',WriterAbout),
-            (r'/_writer/feed.xml',WriterFeed),
+            (r'/_writer/atom.xml',WriterFeed),
             (r'/_writer/(.*)(.md|.markdown|.html|.htm)',WriterArticle),
             (r'/_writer/',WriterDash),
             (r'/_cli/(.*)',CliPage),

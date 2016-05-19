@@ -10,11 +10,12 @@ import getopt
 import copy
 import json
 import time
-import datetime
+from datetime import datetime,date, tzinfo,timedelta
 
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
 from vendor import rfeed
+from feedgen.feed import FeedGenerator
 
 OUTPUT_DIR = '_output'
 DOCUMENTS_DIR = '_documents'
@@ -36,7 +37,7 @@ def now_long_string():
 
 def today_str():
     '''今天的日期'''
-    return str(datetime.date.today())
+    return str(date.today())
 
 def date_to_string(t=now()):
     '''日期转换成字符串 yyyy-MM-dd'''
@@ -91,6 +92,20 @@ def start_of_today():
 def end_of_today():
     '''今天结束的时间'''
     return start_of_today()+3600*24
+
+class UTC(tzinfo):
+    """UTC"""
+    def __init__(self,offset = 0):
+        self._offset = offset
+
+    def utcoffset(self, dt):
+        return timedelta(hours=self._offset)
+
+    def tzname(self, dt):
+        return "UTC +%s" % self._offset
+
+    def dst(self, dt):
+        return timedelta(hours=self._offset)
 
 # config
 class Modal(dict):
@@ -198,9 +213,12 @@ class Article(Modal):
         else:
             self.article_publish_date = date_to_string(self._mtime)
 
+    def render_article_html(self):
+        self._article_html = render(self._markdown_without_title.decode('utf-8'))
+
     def render_html(self):
         self._load_next_previous_article() #载入上一篇和下一篇文章
-        self._article_html = render(self._markdown_without_title.decode('utf-8'))
+        self.render_article_html()
         # css
         d_css = {}
         for (selector,d_value) in self.css.items():
@@ -318,15 +336,41 @@ class SiteMaker(Modal):
                     description = article.article_subtitle,
                     author = article.author or '',
                     guid = rfeed.Guid(article.article_link),
-                    pubDate = datetime.datetime.strptime(article.article_publish_date,'%Y-%m-%d'))
+                    pubDate = datetime.strptime(article.article_publish_date,'%Y-%m-%d'))
             item_list.append(item)
         feed = rfeed.Feed(title = self.site_title,
                 link = self.site_url,
                 description = '',
                 language = 'zh-cn',
-                lastBuildDate = datetime.datetime.now(),
+                lastBuildDate = datetime.now(),
                 items = item_list)
         return feed.rss()
+
+    def render_atom(self):
+        fg = FeedGenerator()
+        fg.id(self.site_url)
+        fg.title(self.site_title)
+        fg.link(href = self.site_url,rel = 'alternate')
+        fg.link(href = self.site_url + 'atom.xml',rel = 'self')
+        fg.language('zh-cn')
+        for link in self.link_list:
+            article = self.article_table[link]
+            fe = fg.add_entry()
+            fe.id(article.article_link)
+            fe.link(link = {'href':self.site_url + article.article_link})
+            fe.title(article.article_title)
+            fe.description(article.article_subtitle or '')
+            fe.author(name = article.author or '',
+                    email = article.author_email or '')
+            d = datetime.strptime(article.article_publish_date,'%Y-%m-%d') 
+            pubdate = datetime(year = d.year, month = d.month, day = d.day,tzinfo = UTC(8))
+            fe.pubdate(pubdate) 
+            article.render_article_html()
+            fe.content(content = article._article_html,
+                    type = 'html')
+        atom_feed = fg.atom_str(pretty = True)
+        return atom_feed
+
 
     def create_article(self,name,title = 'untitled',link = None):
         '''往 _documents 中添加一篇新文章'''
@@ -397,8 +441,10 @@ class SiteMaker(Modal):
         article.generate_html()
 
     def make_feed(self):
-        xml =  self.render_feed()
-        filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'feed.xml')
+        #xml =  self.render_feed()
+        #filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'feed.xml')
+        xml = self.render_atom()
+        filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'atom.xml')
         f = open(filename,'w')
         f.write(xml)
         f.close()
