@@ -19,9 +19,9 @@
     {% for (selector,value) in d_css.items() %}
     {{ selector }} {{value}}
     {% endfor %}
-    {% if article.article_head_photo %}
+    {% if article.article_cover_photo %}
     #article-header {
-      background-image:url('{{ article.article_head_photo }}');
+      background-image:url('{{ article.article_cover_photo }}');
     }
     {% endif %}
   </style>  

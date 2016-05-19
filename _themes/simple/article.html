@@ -47,8 +47,8 @@
     <div class ='clearfix'></div>
     <div id ='article-header'>
       <div id = 'article-header-container'>
-        {% if article.article_head_photo %}
-        <img src = '{{ article.article_head_photo }}' class='head-photo post-image'/>
+        {% if article.article_cover_photo %}
+        <img src = '{{ article.article_cover_photo }}' class='head-photo post-image'/>
         {% endif %} 
         <h1 class = 'post-title'>
           {{ article.article_title or 'Title' }}

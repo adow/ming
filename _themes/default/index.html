@@ -10,15 +10,20 @@
   <title>{{ article.site_title }}</title>
   {% endif %}
   <meta name="author" content="{{ article.author }}">
-  {% if article.article_title %}
-  <meta name="description" content="{{article.site_title}} - {{ article.article_title }}">
-  {% elif article.site_description %}
-  <meta name="description" content="{{article.site_title}} - {{ article.site_description }}">
-  {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
   <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
+  <style type="text/css">
+    {% for (selector,value) in d_css.items() %}
+    {{ selector }} {{value}}
+    {% endfor %}
+    {% if article_config.article_cover_photo %}
+    #article-header {
+      background-image:url('{{ article.article_cover_photo }}');
+    }
+    {% endif %}
+  </style>
 </head>
 <body>
   <div id="layout-container">

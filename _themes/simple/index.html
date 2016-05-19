@@ -10,11 +10,6 @@
   <title>{{ article.site_title }}</title>
   {% endif %}
   <meta name="author" content="{{ article.author }}">
-  {% if article.article_title %}
-  <meta name="description" content="{{article.site_title}} - {{ article.article_title }}">
-  {% elif article.site_description %}
-  <meta name="description" content="{{article.site_title}} - {{ article.site_description }}">
-  {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
   <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
@@ -24,9 +19,9 @@
     {% for (selector,value) in d_css.items() %}
     {{ selector }} {{value}}
     {% endfor %}
-    {% if article.article_head_photo %}
+    {% if article.article_cover_photo %}
     #article-header {
-      background-image:url('{{ article.article_head_photo }}');
+      background-image:url('{{ article.article_cover_photo }}');
     }
     {% endif %}
   </style>  
@@ -57,8 +52,8 @@
     <div class ='clearfix'></div>
     <div id ='article-header'>
       <div id = 'article-header-container'>
-        {% if article.article_head_photo %}
-        <img src = '{{ article.article_head_photo }}'/>
+        {% if article.article_cover_photo %}
+        <img src = '{{ article.article_cover_photo }}'/>
         {% endif %} 
         <img src = 'http://7vihfk.com1.z0.glb.clouddn.com/photo-1451188502541-13943edb6acb.jpeg' class='head-photo'/>
         {% if article['article_category'] %}
