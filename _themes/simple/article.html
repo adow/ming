@@ -59,9 +59,10 @@
         <p class = 'publish-date post-meta'>{{ article['author'] }} 发布于 {{ article['article_publish_date'] }}, {{article.article_category}}</p>
       </div>
     </div> 
-    <div id="article-content" class = 'post'>
-      {{ article._article_html }}
-      
+    <div id="article-content">
+      <div id="article-content-body" class = 'post'>
+        {{ article._article_html }}
+      </div> 
       <div class = 'article-author'>
         <div class = 'article-author-avatar'>
           {% if article["author_avatar"] %}
