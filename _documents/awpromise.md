@@ -299,3 +299,23 @@ Swift 中什么时候才能引入这样的特性呢？
 * [Swift 数组中 Map,FlatMap,Filter,Reduce的使用](http://www.cocoachina.com/swift/20160210/15068.html)
 * [为Swift编码引入map()和flatMap(), map those arrays](http://zyden.vicp.cc/map-those-arrays/?)
 
+
+```
+MING-ARTICLE-CONFIG
+
+{
+    "article_title": "探究 Promise 对象",  
+    "article_subtitle":"实现一个 Swift 下的 Promise ",
+    "themes": "default", 
+    "article_link": "awpromise.html",
+    "article_publish_date":"2016-05-09", 
+    "article_cover_photo":"http://7vihfk.com1.z0.glb.clouddn.com/photo-1457369804613-52c61a468e7d.jpeg", 
+    "article_category":"code",
+    "article_comments":1,
+    "test":"test words",
+    "css": {}
+}
+
+```
+
+

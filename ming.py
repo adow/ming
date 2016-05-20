@@ -10,6 +10,7 @@ import getopt
 import copy
 import json
 import time
+import re
 from datetime import datetime,date, tzinfo,timedelta
 
 from jinja2 import Environment,PackageLoader
@@ -188,14 +189,15 @@ class Article(Modal):
 
     def _parse_markdown(self):
         if not os.path.exists(self._article_filepath):
+            print 'not found:%s'%(self._article_filepath,)
             return
         self._mtime = os.stat(self._article_filepath).st_mtime
         self._sort_value = self._mtime
         f = open(self._article_filepath)
         self._markdown = f.read()
         f.close()
-        # article_title
         self._markdown_without_title = self._markdown
+        # 去掉标题 
         lines = self._markdown_without_title.split('\n')
         if lines:
             first_line = lines[0]
@@ -204,6 +206,23 @@ class Article(Modal):
                     title_from_markdown = first_line[1:].strip()
                     self.article_title = title_from_markdown
                 self._markdown_without_title = '\n'.join(lines[1:])
+        # 文件内配置 
+        pos_inner_config = self._markdown_without_title.find('```\nMING-ARTICLE-CONFIG')
+        if pos_inner_config >= 0:
+            # 读取文件内的配置, 配置内容必须放在文件的末尾
+            inner_config_str = self._markdown_without_title[pos_inner_config:]
+            p = '```\nMING-ARTICLE-CONFIG\n(.*?)\n```'
+            j_l = re.findall(p, inner_config_str,re.S)
+            if j_l:
+                j = j_l[-1].strip()
+                inner_config = json.loads(j)
+                for (k,v) in inner_config.items():
+                    #print 'inner config %s:%s'%(k,v,)
+                    self[k] = v
+            # 从文件从删除配置的内容
+            self._markdown_without_title = self._markdown_without_title[:pos_inner_config]
+
+        #print self._markdown_without_title
         # _sort_value 
         if self.article_publish_date:
             if ':' in self.article_publish_date:
