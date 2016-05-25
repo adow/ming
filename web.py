@@ -18,12 +18,15 @@ from jinja2 import Environment,PackageLoader
 
 from ming import Article,OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
 
+# 当前 ming 的执行目录
+MING_DIR = os.path.realpath(__file__) if os.path.islink(__file__) else __file__
+
 # themes
-THEMES_PATH = os.path.join(os.path.dirname(__file__),THEMES_DIR)
+THEMES_PATH = os.path.join('.',THEMES_DIR)
 # output
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__),OUTPUT_DIR)
+OUTPUT_PATH = os.path.join('.',OUTPUT_DIR)
 # static
-STATIC_PATHA  = os.path.join(os.path.dirname(__file__),'static') #tornado setting static_path
+STATIC_PATHA  = os.path.join('.','static') #tornado setting static_path
 
 class ArticlePage(tornado.web.RequestHandler):
     '''文章预览'''
@@ -74,7 +77,8 @@ class SitePage(tornado.web.RequestHandler):
 # cli
 class CliPage (tornado.web.RequestHandler):
     def get(self,cmd = 'help'):
-        script = 'python ming.py %s'%(cmd,)
+        #script = 'python ming.py %s'%(cmd,)
+        script = 'ming %s'%(cmd,)
         self.write(script)
         cli = script.split(' ')
         subprocess.call(cli)

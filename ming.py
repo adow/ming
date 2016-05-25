@@ -11,6 +11,7 @@ import copy
 import json
 import time
 import re
+import shutil
 from datetime import datetime,date, tzinfo,timedelta
 
 from jinja2 import Environment,PackageLoader
@@ -18,9 +19,12 @@ from mikoto.libs.text import render
 from vendor import rfeed
 from feedgen.feed import FeedGenerator
 
-OUTPUT_DIR = '_output'
-DOCUMENTS_DIR = '_documents'
-THEMES_DIR = '_themes'
+#OUTPUT_DIR = os.path.join(os.getcwd(),'_output')
+#DOCUMENTS_DIR = os.path.join(os.getcwd(),'_documents')
+#THEMES_DIR = os.path.join(os.getcwd(),'_themes')
+OUTPUT_DIR = './_output' 
+DOCUMENTS_DIR = './_documents' 
+THEMES_DIR = './_themes' 
 
 #time
 def now():
@@ -173,6 +177,9 @@ class Article(Modal):
         self._article_filename = article_filename 
         self._article_filepath = os.path.join(DOCUMENTS_DIR,article_filename)
         self._article_config_filepath = self._article_filepath + '.json'
+        #print 'article_filename:%s'%(self._article_filename,)
+        #print 'article_filepath:%s'%(self._article_filepath,)
+        #print 'article_config_filepath:%s'%(self._article_config_filepath,)
         self._markdown = ''
         self._markdown_without_title = ''
         self._mtime = 0
@@ -240,16 +247,17 @@ class Article(Modal):
         self.render_article_html()
         # css
         d_css = {}
-        for (selector,d_value) in self.css.items():
-            css_v = "{"
-            for k,v in d_value.items():
-                css_v += '%s:%s;'%(k,v,)
-            css_v += "}"
-            d_css[selector] = css_v
+        if self.css:
+            for (selector,d_value) in self.css.items():
+                css_v = "{"
+                for k,v in d_value.items():
+                    css_v += '%s:%s;'%(k,v,)
+                css_v += "}"
+                d_css[selector] = css_v
         theme_name = self.themes or 'default'
-        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
+        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
         theme = env.get_template('article.html')
-        theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
+        theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
         html = theme.render(theme_dir = theme_dir,article = self,d_css = d_css)
         return html
 
@@ -298,8 +306,10 @@ class SiteMaker(Modal):
             self[k] = v
 
     def _prepare_articles(self):
-        folder = os.path.join(os.path.dirname(__file__),DOCUMENTS_DIR)
+        folder = DOCUMENTS_DIR 
+        print folder
         name_list = os.listdir(folder)
+        print name_list
         file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN'] and not f.startswith('_')]
         file_name_list.sort(lambda f1,f2: int(os.stat(f2).st_mtime) - int(os.stat(f1).st_mtime))
         self.article_table = {}
@@ -339,9 +349,9 @@ class SiteMaker(Modal):
     def render_archive(self):
         d_archive = self.archive()
         theme_name = self.themes or 'default'
-        env=Environment(loader=PackageLoader(THEMES_DIR,theme_name))
+        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
         theme = env.get_template('archive.html')
-        theme_dir = os.path.join('/',THEMES_DIR,theme_name) 
+        theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
         html = theme.render(theme_dir = theme_dir,site=self,
                 archive = d_archive)
         return html
@@ -463,7 +473,7 @@ class SiteMaker(Modal):
         #xml =  self.render_feed()
         #filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'feed.xml')
         xml = self.render_atom()
-        filename = os.path.join(os.path.dirname(__file__),OUTPUT_DIR,'atom.xml')
+        filename = os.path.join(OUTPUT_DIR,'atom.xml')
         f = open(filename,'w')
         f.write(xml)
         f.close()
@@ -528,7 +538,7 @@ def cli_make_site():
     site_maker.make_site()
 
 def cli_clean():
-    top = os.path.join(os.path.dirname(__file__),OUTPUT_DIR)
+    top = OUTPUT_DIR 
     print top
     for (root,dirs,files) in os.walk(top):
         for one_file in files:
@@ -541,15 +551,73 @@ def cli_clean():
             os.rmdir(path)
 
 def cli_init():
+    '''初始化一个站点配置'''
     params = sys.argv[2:] if len(sys.argv) > 2 else []
-    # TODO: site.json
-    site_json = {}
-    # TODO: _documents
-    # TODO: _documents/_ming.md, _documents/_ming.md.json
-    # TODO: _themes
-    # TODO: _themes/default
-    # TODO: _output
-    pass
+    if '.' in params:
+        params = params[1:]
+    opts,args = getopt.getopt(params,"n:t:l:d:",["name=","title=","link=","dir="])
+    d = '.'
+    site_name = 'MING SITE'
+    site_title = 'MING SITE'
+    site_url = 'http://localhost/'
+    for (op,value) in opts:
+        if op in ['-n','--name']:
+            site_name = value 
+        if op in ['-t','--title']:
+            site_title = value 
+        if op in ['-l','--link']:
+            site_url = value
+        if op in ['-d','--dir']:
+            d = value
+    # ming dir
+    ming_file = os.path.realpath(__file__) if os.path.islink(__file__) else __file__ 
+    ming_dir = os.path.dirname(ming_file)
+    print 'ming dir:%s'%(ming_dir,)
+    # site.json
+    site_json = {
+            "site_theme":"default",
+            "site_name":site_name,
+            "site_title":site_title,
+            "site_name_mobile":site_name,
+            "site_title_mobile":site_title,
+            "site_url":site_url,
+            "site_links":[
+                {"title":"存档",
+                    "url":"archive.html"},
+                {"title":"关于",
+                    "url":"about.html"},
+                ],
+            "author":"adow",
+            "author_email":"",
+            "author_status":"",
+            "author_avatar":"",
+            "author_weibo":"",
+            "author_twitter":"",
+            "author_github":"",
+            "article_theme":"default",
+            "article_css":{
+                },
+            }
+    site_json_str = json.dumps(site_json,indent = 4)
+    site_json_filename = os.path.join(d,'site.json')
+    site_json_f = open(site_json_filename,'w')
+    site_json_f.write(site_json_str)
+    site_json_f.close()
+    print site_json_filename
+    #  _documents
+    documents_dir_from = os.path.join(ming_dir,'_documents')
+    documents_dir_to = os.path.join(d,'_documents')
+    shutil.copytree(documents_dir_from,documents_dir_to)
+    print 'documents:%s'%(documents_dir_to,)
+    # _themes
+    themes_dir_from = os.path.join(ming_dir,'_themes')
+    themes_dir_to = os.path.join(d,'_themes')
+    shutil.copytree(themes_dir_from,themes_dir_to)
+    print 'themes:%s'%(themes_dir_to,)
+    # _output
+    output_dir = os.path.join(d,'_output')
+    print 'output:%s'%(output_dir,)
+    os.makedirs(output_dir)
 
 def help():
     print 'ming local-server: start local web server' 
@@ -559,6 +627,7 @@ def help():
     print 'ming make-about: make about.html'
     print 'ming make-index: make index.html'
     print 'ming make-site: make all pages'
+    print 'ming init -n <sitename> -t <sitetitle> -l <siteurl>'
     print 'ming test: test'
 
 # test
@@ -587,4 +656,5 @@ if __name__ == '__main__':
             'make-feed':cli_make_feed,
             'make-site': cli_make_site,
             'clean':cli_clean,
+            'init':cli_init,
             'test':test}.get(cmd,help)()
