@@ -312,8 +312,7 @@ MING-ARTICLE-CONFIG
     "article_cover_photo":"http://7vihfk.com1.z0.glb.clouddn.com/photo-1457369804613-52c61a468e7d.jpeg", 
     "article_category":"code",
     "article_comments":1,
-    "test":"test words",
-    "css": {}
+    "article_css": {}
 }
 
 ```

@@ -247,8 +247,8 @@ class Article(Modal):
         self.render_article_html()
         # css
         d_css = {}
-        if self.css:
-            for (selector,d_value) in self.css.items():
+        if self.article_css:
+            for (selector,d_value) in self.article_css.items():
                 css_v = "{"
                 for k,v in d_value.items():
                     css_v += '%s:%s;'%(k,v,)
