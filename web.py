@@ -43,14 +43,14 @@ class ThemeArticle(tornado.web.RequestHandler):
     '''模板预览页面'''
     def get(self,theme_name):
         article = Article('_ming.md')
-        article.themes = theme_name
+        article.article_theme = theme_name
         html = article.render_html()
         self.write(html)
 
 class ThemeAbout(tornado.web.RequestHandler):
     def get(self,theme_name):
         article = Article('_about.md')
-        article.theme = theme_name
+        article.article_theme = theme_name
         html = article.render_html()
         self.write(html)
 
@@ -58,7 +58,7 @@ class ThemeArchive(tornado.web.RequestHandler):
     def get(self,theme_name = 'default'):
         #self.write('archive')
         site_maker = SiteMaker()
-        site_maker.themes = theme_name
+        site_maker.site_theme = theme_name
         html = site_maker.render_archive()
         self.write(html)
 

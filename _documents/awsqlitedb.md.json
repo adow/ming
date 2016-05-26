@@ -1,5 +1,5 @@
 {
-    "theme":"default",
+    "article_theme":"default",
     "article_title":"AWSQLiteDB",
     "article_subtitle":"AWSQLiteDB a simple wrapper for libsqlite3.0 in Swift",
     "article_category":"Code",

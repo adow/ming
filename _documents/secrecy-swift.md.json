@@ -1,5 +1,5 @@
 {
-    "theme":"default",
+    "article_theme":"default",
     "article_title":"SecrecySwift",
     "article_subtitle":"AES/CBC/EBC/RSA in Swift",
     "article_category":"Code",

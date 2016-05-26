@@ -1,5 +1,5 @@
 {
-    "themes":"default",
+    "site_theme":"default",
     "site_name":"CodingNEXT",
     "site_title":"CodingNext",
     "site_name_mobile":"CN",
@@ -18,5 +18,6 @@
     "author_weibo":"http://weibo.com/adow",
     "author_twitter":"https://twitter.com/reynoldqin",
     "author_github":"https://github.com/adow",
-    "css":{}
+    "article_theme":"default",
+    "article_css":{}
 }

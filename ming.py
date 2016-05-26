@@ -254,7 +254,7 @@ class Article(Modal):
                     css_v += '%s:%s;'%(k,v,)
                 css_v += "}"
                 d_css[selector] = css_v
-        theme_name = self.themes or 'default'
+        theme_name = self.article_theme or 'default'
         env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
         theme = env.get_template('article.html')
         theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
@@ -274,7 +274,7 @@ class Article(Modal):
         f.write(html.encode('utf-8'))
         f.close()
         # copy theme
-        theme_name = self.themes or 'default'
+        theme_name = self.article_theme or 'default'
         copy_theme(theme_name)
 
     def _load_next_previous_article(self):
@@ -352,7 +352,7 @@ class SiteMaker(Modal):
 
     def render_archive(self):
         d_archive = self.archive()
-        theme_name = self.themes or 'default'
+        theme_name = self.site_theme or 'default'
         env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
         theme = env.get_template('archive.html')
         theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
@@ -403,7 +403,6 @@ class SiteMaker(Modal):
                     type = 'html')
         atom_feed = fg.atom_str(pretty = True)
         return atom_feed
-
 
     def create_article(self,name,title = 'untitled',link = None):
         '''往 _documents 中添加一篇新文章'''
@@ -456,7 +455,7 @@ class SiteMaker(Modal):
         f.write(html.encode('utf-8'))
         f.close()
         # copy theme
-        theme_name = self.themes or 'default'
+        theme_name = self.site_theme or 'default'
         copy_theme(theme_name)
 
     def make_index(self):
@@ -471,7 +470,7 @@ class SiteMaker(Modal):
         f.write(html.encode('utf-8'))
         f.close()
         # copy theme
-        theme_name = self.themes or 'default'
+        theme_name = self.site_theme or 'default'
         copy_theme(theme_name)
 
     def make_about(self):
