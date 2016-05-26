@@ -19,9 +19,6 @@ from mikoto.libs.text import render
 from vendor import rfeed
 from feedgen.feed import FeedGenerator
 
-#OUTPUT_DIR = os.path.join(os.getcwd(),'_output')
-#DOCUMENTS_DIR = os.path.join(os.getcwd(),'_documents')
-#THEMES_DIR = os.path.join(os.getcwd(),'_themes')
 OUTPUT_DIR = './_output' 
 DOCUMENTS_DIR = './_documents' 
 THEMES_DIR = './_themes' 
@@ -30,19 +27,6 @@ THEMES_DIR = './_themes'
 def now():
     '''现在时间'''
     return time.time()
-
-def time_to_long_string(t=now()):
-    '''时间转换成 yyyy-MM-dd HH:mm:ss'''
-    TIMEFORMAT="%Y-%m-%d %X"
-    return time.strftime(TIMEFORMAT,time.localtime(t))
-
-def now_long_string():
-    '''现在时间的字符串'''
-    return time_to_long_string()
-
-def today_str():
-    '''今天的日期'''
-    return str(date.today())
 
 def date_to_string(t=now()):
     '''日期转换成字符串 yyyy-MM-dd'''
@@ -65,39 +49,6 @@ def string_to_date_float(string):
     t=time.strptime(string,TIMEFORMAT)
     return time.mktime(t)
 
-def string_to_time(string):
-    '''字符串转时间'''
-    if string is None or string =='':
-        return 0
-    if ':' not in string:
-        string+=" 00:00:00"
-    TIMEFORMAT="%Y-%m-%d %H:%M:%S"
-    t=time.strptime(string,TIMEFORMAT)
-    return t
-
-def string_to_date(string):
-    '''字符串转日期'''
-    TIMEFORMAT="%Y-%m-%d"
-    t=time.strptime(string,TIMEFORMAT)
-    return t
-
-def make_runat_seconds(hours,minutes=0,seconds=0):
-    '''从0点到现在的秒数'''
-    return hours*60*60+minutes*60+seconds
-
-def now_seconds():
-    '''现在的秒数'''
-    t=time.localtime()
-    return make_runat_seconds(t.tm_hour,t.tm_min,t.tm_sec)
-
-def start_of_today():
-    '''今天开始的时间'''
-    return time.time()-now_seconds() 
-
-def end_of_today():
-    '''今天结束的时间'''
-    return start_of_today()+3600*24
-
 class UTC(tzinfo):
     """UTC"""
     def __init__(self,offset = 0):
@@ -112,7 +63,7 @@ class UTC(tzinfo):
     def dst(self, dt):
         return timedelta(hours=self._offset)
 
-# config
+# modal
 class Modal(dict):
     def __init__(self,row=None,**args):
         '''row should be type of dict or database.Row'''
@@ -149,6 +100,7 @@ class Modal(dict):
             setattr(result,k,copy.deepcopy(v,memo))
         return result
 
+# config
 class Config(Modal):
     '''配置信息'''
     def __init__(self, row = None, **args):
