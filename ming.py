@@ -455,6 +455,9 @@ class SiteMaker(Modal):
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
+        # copy theme
+        theme_name = self.themes or 'default'
+        copy_theme(theme_name)
 
     def make_index(self):
         top_link = self.link_list[0]
@@ -467,6 +470,9 @@ class SiteMaker(Modal):
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
+        # copy theme
+        theme_name = self.themes or 'default'
+        copy_theme(theme_name)
 
     def make_about(self):
         article_filename = '_about.md'
