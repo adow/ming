@@ -273,6 +273,9 @@ class Article(Modal):
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
+        # copy theme
+        theme_name = self.themes or 'default'
+        copy_theme(theme_name)
 
     def _load_next_previous_article(self):
         '''载入上一篇和下一篇文章'''
@@ -292,6 +295,7 @@ class Article(Modal):
             next_link = site_maker.link_list[next_pos]
             self._next_article = site_maker.article_table[next_link]
 
+# site
 class SiteMaker(Modal):
     def __init__(self):
         super(SiteMaker,self).__init__()
@@ -307,9 +311,9 @@ class SiteMaker(Modal):
 
     def _prepare_articles(self):
         folder = DOCUMENTS_DIR 
-        print folder
+        #print folder
         name_list = os.listdir(folder)
-        print name_list
+        #print name_list
         file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN'] and not f.startswith('_')]
         file_name_list.sort(lambda f1,f2: int(os.stat(f2).st_mtime) - int(os.stat(f1).st_mtime))
         self.article_table = {}
@@ -488,6 +492,46 @@ class SiteMaker(Modal):
         for (link,article) in self.article_table.items():
             article.generate_html()
 
+# copy themes
+def copy_theme(name):
+    '''copy theme from ./_themes/<name> to ./output/_themes/<name>'''
+    theme_dir_from = os.path.join(THEMES_DIR,name)
+    theme_dir_to = os.path.join(OUTPUT_DIR,'_themes',name)
+    if not os.path.exists(theme_dir_from):
+        print 'theme not found'
+        return
+    #print 'from:%s'%(theme_dir_from,)
+    #print 'to:%s'%(theme_dir_to,)
+    for (root,dirs,files) in os.walk(theme_dir_from):
+        for one_file in files:
+            from_path = os.path.join(root,one_file)
+            to_path = os.path.join('./_output',from_path.replace('./',''))
+            # 如果目标文件的修改时间一样就不要拷贝
+            if os.path.exists(to_path):
+                to_mtime = os.stat(to_path).st_mtime
+                from_mtime = os.stat(from_path).st_mtime
+                if from_mtime == to_mtime:
+                    print 'skip file:%s to %s'%(from_path, to_path,)
+                    continue
+            # 先创建目录
+            to_dir = os.path.dirname(to_path)
+            if not os.path.exists(to_dir):
+                print 'create dir:%s'%(to_dir,)
+                os.makedirs(to_dir)
+            shutil.copy2(from_path,to_path)
+            print 'copy file:%s to %s'%(from_path,to_path,)
+        for one_dir in dirs:
+            from_path = os.path.join(root,one_dir)
+            to_path = os.path.join('./_output',from_path.replace('./',''))
+            if os.path.exists(to_path):
+                print 'skip dir %s to %s'%(from_path, to_path,)
+                continue
+            else:
+                # copy dir
+                os.makedirs(to_path)
+                shutil.copystat(from_path,to_path)
+                print 'copy dir: %s to %s'%(from_path,to_path,) 
+
 # cli
 def cli_make_article():
     if len(sys.argv) < 3:
@@ -538,6 +582,7 @@ def cli_make_site():
     site_maker.make_site()
 
 def cli_clean():
+    '''清理 _output 目录下的全部内容'''
     top = OUTPUT_DIR 
     print top
     for (root,dirs,files) in os.walk(top):
@@ -548,7 +593,7 @@ def cli_clean():
         for one_dir in dirs:
             path = os.path.join(root,one_dir)
             print path
-            os.rmdir(path)
+            shutil.rmtree(path)
 
 def cli_init():
     '''初始化一个站点配置'''
