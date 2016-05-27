@@ -349,7 +349,7 @@ class SiteMaker(Modal):
     def create_article(self,name,title = 'untitled',link = None, config_file = False):
         '''往 _documents 中添加一篇新文章'''
         config = Config()
-        d.clear() # 清理所有的信息，重写 article 配置 
+        config.clear() # 清理所有的信息，重写 article 配置 
         config.article_title = title
         if not link:
             config.article_link = title + '.html'
@@ -361,17 +361,17 @@ class SiteMaker(Modal):
         config.article_cover_photo = ''
         config.article_category = ''
         config.article_comments = 1
-        config.article_css = '{}'
-        config_str = json.dumps(config)
+        config.article_css = {}
+        config_str = json.dumps(config,indent = 4)
         _,ext = os.path.splitext(name)
-        if ext not in ['md','markdown']:
+        if ext not in ['.md','.markdown']:
             name += '.md'
         if not title.startswith('#'):
             title = '# ' + title
         article_filename = os.path.join(DOCUMENTS_DIR,name)
         print 'article:%s'%(article_filename,)
         f = open(article_filename,'w')
-        f.write(title + '\n\n')
+        f.write(title + '\n\n\n')
         # 写入配置到文件里面
         if not config_file:
             inner_config_str = '```\nMING-ARTICLE-CONFIG\n' + config_str + '\n```'
