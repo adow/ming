@@ -100,7 +100,6 @@ class WriterArticle(tornado.web.RequestHandler):
             article = ArticleManager.sharedManager().article_for_filename(filename)
         else:
             article = ArticleManager.sharedManager().article_for_link(filename)
-        print article
         if article:
             html = article.render_page()
             self.write(html)

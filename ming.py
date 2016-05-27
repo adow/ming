@@ -240,7 +240,7 @@ class Article(Modal):
         f.close()
         # copy theme
         theme_name = self.article_theme or 'default'
-        copy_theme(theme_name)
+        copy_theme_if_necessory(theme_name)
 
     def _load_next_previous_article(self):
         '''载入上一篇和下一篇文章'''
@@ -407,7 +407,7 @@ class SiteMaker(Modal):
         f.close()
         # copy theme
         theme_name = self.site_theme or 'default'
-        copy_theme(theme_name)
+        copy_theme_if_necessory(theme_name)
 
     def make_index(self):
         article = ArticleManager.sharedManager().top_article()
@@ -423,7 +423,7 @@ class SiteMaker(Modal):
         f.close()
         # copy theme
         theme_name = self.site_theme or 'default'
-        copy_theme(theme_name)
+        copy_theme_if_necessory(theme_name)
 
     def make_about(self):
         article_filename = '_about.md'
@@ -451,6 +451,7 @@ class SiteMaker(Modal):
             article.generate_page()
 
 # copy themes
+_THEMES_COPYED = [] # 已经拷贝过的主题会保存在这里
 def copy_theme(name):
     '''copy theme from ./_themes/<name> to ./output/_themes/<name>'''
     theme_dir_from = os.path.join(THEMES_DIR,name)
@@ -489,6 +490,20 @@ def copy_theme(name):
                 os.makedirs(to_path)
                 shutil.copystat(from_path,to_path)
                 print 'copy dir: %s to %s'%(from_path,to_path,) 
+
+def copy_theme_if_necessory(name):
+    '''如果这个主题没有拷贝过才拷贝'''
+    global _THEMES_COPYED
+    if name not in _THEMES_COPYED:
+        copy_theme(name)
+        _THEMES_COPYED.append(name)
+    else:
+        print 'skip theme:%s'%(name,)
+
+def clear_themes_copyed():
+    '''清理已经记录的主题拷贝'''
+    global _THEMES_COPYED
+    _THEMES_COPYED = []
 
 # ArticleManager
 SHARED_ARTICLE_MANAGER = None
@@ -570,6 +585,7 @@ class ArticleManager(Modal):
 
 # cli
 def cli_make_article():
+    clear_themes_copyed()
     if len(sys.argv) < 3:
         print 'no article specificed' 
         return
@@ -580,6 +596,7 @@ def cli_make_article():
     site_maker.make_archive()
 
 def cli_create_article():
+    clear_themes_copyed()
     opts,args = getopt.getopt(sys.argv[2:],"n:t:l:",["name=","title=","link="])
     name = ''
     title = 'untitled'
@@ -598,27 +615,33 @@ def cli_create_article():
     site_maker.create_article(name,title=title,link = link)
 
 def cli_make_archive():
+    clear_themes_copyed()
     site_maker = SiteMaker()
     site_maker.make_archive()
 
 def cli_make_about():
+    clear_themes_copyed()
     site_maker = SiteMaker()
     site_maker.make_about()
 
 def cli_make_index():
+    clear_themes_copyed()
     site_maker = SiteMaker()
     site_maker.make_index()
 
 def cli_make_feed():
+    clear_themes_copyed()
     site_maker = SiteMaker()
     site_maker.make_feed()
 
 def cli_make_site():
+    clear_themes_copyed()
     site_maker = SiteMaker()
     site_maker.make_site()
 
 def cli_clean():
     '''清理 _output 目录下的全部内容'''
+    clear_themes_copyed()
     top = OUTPUT_DIR 
     print top
     for (root,dirs,files) in os.walk(top):
@@ -633,6 +656,7 @@ def cli_clean():
 
 def cli_init():
     '''初始化一个站点配置'''
+    clear_themes_copyed()
     params = sys.argv[2:] if len(sys.argv) > 2 else []
     if '.' in params:
         params = params[1:]
