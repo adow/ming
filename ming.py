@@ -507,7 +507,7 @@ def copy_theme(name):
                 to_mtime = os.stat(to_path).st_mtime
                 from_mtime = os.stat(from_path).st_mtime
                 if from_mtime == to_mtime:
-                    print 'skip file:%s to %s'%(from_path, to_path,)
+                    #print 'skip file:%s to %s'%(from_path, to_path,)
                     continue
             # 先创建目录
             to_dir = os.path.dirname(to_path)
@@ -520,7 +520,7 @@ def copy_theme(name):
             from_path = os.path.join(root,one_dir)
             to_path = os.path.join('./_output',from_path.replace('./',''))
             if os.path.exists(to_path):
-                print 'skip dir %s to %s'%(from_path, to_path,)
+                #print 'skip dir %s to %s'%(from_path, to_path,)
                 continue
             else:
                 # copy dir
@@ -535,7 +535,8 @@ def copy_theme_if_necessory(name):
         copy_theme(name)
         _THEMES_COPYED.append(name)
     else:
-        print 'skip theme:%s'%(name,)
+        #print 'skip theme:%s'%(name,)
+        pass
 
 def clear_themes_copyed():
     '''清理已经记录的主题拷贝'''
