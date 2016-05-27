@@ -242,6 +242,43 @@ class Article(Modal):
         theme_name = self.article_theme or 'default'
         copy_theme_if_necessory(theme_name)
 
+    def render_page_for_index(self):
+        self._load_next_previous_article() #载入上一篇和下一篇文章
+        self.render_content_html() # 获取正文内容
+        archive = ArticleManager.sharedManager().archive_by_year() # 传递归档列表到首页里去
+        # css
+        d_css = {}
+        if self.article_css:
+            for (selector,d_value) in self.article_css.items():
+                css_v = "{"
+                for k,v in d_value.items():
+                    css_v += '%s:%s;'%(k,v,)
+                css_v += "}"
+                d_css[selector] = css_v
+        theme_name = self.site_theme or 'default' # 使用 site_theme
+        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
+        theme = env.get_template('index.html')
+        theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
+        html = theme.render(theme_dir = theme_dir,
+                article = self,d_css = d_css,
+                archive = archive)
+        return html
+
+    def generate_page_for_index(self):
+        '''生成首页'''
+        html = self.render_page_for_index()
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+        output_filename = os.path.join(OUTPUT_DIR,
+                'index.html')
+        print 'generate page:', output_filename
+        f = open(output_filename,'w')
+        f.write(html.encode('utf-8'))
+        f.close()
+        # copy theme
+        theme_name = self.theme_name or 'default'
+        copy_theme_if_necessory(theme_name)
+
     def _load_next_previous_article(self):
         '''载入上一篇和下一篇文章'''
         ArticleManager.sharedManager().load_all_articles()
@@ -413,17 +450,17 @@ class SiteMaker(Modal):
         article = ArticleManager.sharedManager().top_article()
         if not article:
             return
-        html = article.render_page()
-        if not os.path.exists(OUTPUT_DIR):
-            os.makedirs(OUTPUT_DIR)
-        output_filename = os.path.join(OUTPUT_DIR, 'index.html')
-        print output_filename
-        f = open(output_filename,'w')
-        f.write(html.encode('utf-8'))
-        f.close()
-        # copy theme
-        theme_name = self.site_theme or 'default'
-        copy_theme_if_necessory(theme_name)
+        theme_index_filename = os.path.join(THEMES_DIR,article.site_theme,'index.html')
+        print 'theme_index_filename:%s'%(theme_index_filename,)
+        # 如果模板里面有首页的话，用首页生成，否则就当普通的文章生成
+        if os.path.exists(theme_index_filename):
+            print 'generate index'
+            article.generate_page_for_index()
+        else:
+            print 'generate top article'
+            article.article_link = 'index.html'
+            article.generate_page()
+        
 
     def make_about(self):
         article_filename = '_about.md'
