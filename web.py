@@ -16,7 +16,7 @@ from tornado.httpclient import *
 import tornado.httpserver
 from jinja2 import Environment,PackageLoader
 
-from ming import Article,OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
+from ming import Article, ArticleManager,OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
 
 # 当前 ming 的执行目录
 MING_DIR = os.path.realpath(__file__) if os.path.islink(__file__) else __file__
@@ -34,29 +34,31 @@ class ArticlePage(tornado.web.RequestHandler):
         url = self.request.path
         (_,filename) = os.path.split(url)
         print filename
-        article = Article(filename)
-        html = article.render_html()
-        self.write(html)
+        article = ArticleManager.sharedManager().article_for_filename(filename) 
+        if article:
+            html = article.render_page()
+            self.write(html)
 
 # themes
 class ThemeArticle(tornado.web.RequestHandler):
     '''模板预览页面'''
     def get(self,theme_name):
-        article = Article('_ming.md')
-        article.article_theme = theme_name
-        html = article.render_html()
-        self.write(html)
+        article = ArticleManager.sharedManager().article_for_filename('_ming.md')
+        if article:
+            article.article_theme = theme_name
+            html = article.render_page()
+            self.write(html)
 
 class ThemeAbout(tornado.web.RequestHandler):
     def get(self,theme_name):
-        article = Article('_about.md')
-        article.article_theme = theme_name
-        html = article.render_html()
-        self.write(html)
+        article = ArticleManager.sharedManager().article_for_filename('_about.md')
+        if article:
+            article.article_theme = theme_name
+            html = article.render_page()
+            self.write(html)
 
 class ThemeArchive(tornado.web.RequestHandler):
     def get(self,theme_name = 'default'):
-        #self.write('archive')
         site_maker = SiteMaker()
         site_maker.site_theme = theme_name
         html = site_maker.render_archive()
@@ -95,26 +97,27 @@ class WriterArticle(tornado.web.RequestHandler):
         filename = name + ext
         article = None
         if ext in ['.md','.markdown']:
-            article = Article(filename)
+            article = ArticleManager.sharedManager().article_for_filename(filename)
         else:
-            site_maker = SiteMaker()
-            article = site_maker.article_table[filename]
+            article = ArticleManager.sharedManager().article_for_link(filename)
+        print article
         if article:
-            html = article.render_html()
+            html = article.render_page()
             self.write(html)
 
 class WriterIndex(tornado.web.RequestHandler):
     def get(self):
-        site_maker = SiteMaker()
-        article = site_maker.index_article()
-        html = article.render_html()
-        self.write(html)
+        article = ArticleManager.sharedManager().top_article()
+        if article:
+            html = article.render_page()
+            self.write(html)
 
 class WriterAbout(tornado.web.RequestHandler):
     def get(self):
-        article = Article('_about.md')
-        html = article.render_html()
-        self.write(html)
+        article = ArticleManager.sharedManager().article_for_filename('_about.md')
+        if article:
+            html = article.render_page()
+            self.write(html)
 
 class WriterFeed(tornado.web.RequestHandler):
     def get(self):
@@ -125,6 +128,7 @@ class WriterFeed(tornado.web.RequestHandler):
 
 class WriterDash(tornado.web.RequestHandler):
     def get(self):
+        ArticleManager.sharedManager().load_all_articles()
         html = '<h1>MING LocalServer</h1>'
         html += '<h2>Output Site</h2>'
         html += '<ul>'
@@ -147,12 +151,13 @@ class WriterDash(tornado.web.RequestHandler):
         html += '</ul>'
         html += '<h3>Article List</h3>'
         html += '<ul>'
-        site_maker = SiteMaker()
-        for link in site_maker.link_list:
+        link_list  = ArticleManager.sharedManager().link_list()
+        for link in link_list:
             link = link.encode('utf-8')
-            article = site_maker.article_table[link]
-            _,filename = os.path.split(article._article_filepath)
-            html += "<li><a href = '%s'>%s</a>:%s</li>"%(filename,filename,article.article_title.encode('utf-8'),)
+            article = ArticleManager.sharedManager().article_for_link(link)
+            if article:
+                _,filename = os.path.split(article._article_filepath)
+                html += "<li><a href = '%s'>%s</a>:%s</li>"%(filename,filename,article.article_title.encode('utf-8'),)
         html += '</ul>'
         html += '<h2>Themes Development</h2>'
         html += '<ul>'

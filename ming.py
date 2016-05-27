@@ -111,16 +111,21 @@ class Config(Modal):
         d = json.loads(s)
         super(Config,self).__init__(row = d, **args)
 
-    def load_article_config(self,article_config_filename):
-        '''会合并文章的配置文件'''
+    def load_config_file_for_article(self,article_config_filename):
+        '''从文章的同名配置文件读取内容'''
         d = {}
         if os.path.exists(article_config_filename):
+            self._config_mtime = os.stat(article_config_filename).st_mtime #配置文件的修改时间
             f = open(article_config_filename)
             s = f.read()
             f.close()
             d = json.loads(s)
         for (k,v) in d.items():
             self[k] = v
+
+    def load_config_in_article(self,article_filename):
+        '''从文章内容中读取配置'''
+        pass
 
 # Article
 class Article(Modal):
@@ -132,44 +137,49 @@ class Article(Modal):
         #print 'article_filename:%s'%(self._article_filename,)
         #print 'article_filepath:%s'%(self._article_filepath,)
         #print 'article_config_filepath:%s'%(self._article_config_filepath,)
-        self._markdown = ''
-        self._markdown_without_title = ''
-        self._mtime = 0
+        self._markdown = '' # 整个文件
+        self._markdown_content = '' # 只有正文内容
+        self._mtime = 0 #文章修改时间
+        self._config_mtime = 0 #配置文件修改时间
         self._sort_value = 0 # 这个值用于列表排序, 他从 article_publish_date 中获取，如果没有，就是文章的修改时间
+        # 在 read 里面载入内容
         self._load_config()
-        self._parse_markdown()
+        self._load_and_parse_article()
 
     def _load_config(self):
         '''加载配置文件'''
         config = Config()
-        config.load_article_config(self._article_config_filepath)
+        config.load_config_file_for_article(self._article_config_filepath)
         for (k,v) in config.items():
             self[k] = v
 
-    def _parse_markdown(self):
+    def _load_and_parse_article(self):
+        '''解析整个 markdown, 获取 标题，正文，配置，排序'''
         if not os.path.exists(self._article_filepath):
             print 'not found:%s'%(self._article_filepath,)
             return
+        # 文章的修改时间，作为排序
         self._mtime = os.stat(self._article_filepath).st_mtime
         self._sort_value = self._mtime
+        # 内容
         f = open(self._article_filepath)
         self._markdown = f.read()
         f.close()
-        self._markdown_without_title = self._markdown
         # 去掉标题 
-        lines = self._markdown_without_title.split('\n')
+        self._markdown_content = self._markdown
+        lines = self._markdown_content.split('\n')
         if lines:
             first_line = lines[0]
             if first_line.startswith('#'):
                 if not self.article_title:
                     title_from_markdown = first_line[1:].strip()
                     self.article_title = title_from_markdown
-                self._markdown_without_title = '\n'.join(lines[1:])
+                self._markdown_content = '\n'.join(lines[1:])
         # 文件内配置 
-        pos_inner_config = self._markdown_without_title.find('```\nMING-ARTICLE-CONFIG')
+        pos_inner_config = self._markdown_content.find('```\nMING-ARTICLE-CONFIG')
         if pos_inner_config >= 0:
             # 读取文件内的配置, 配置内容必须放在文件的末尾
-            inner_config_str = self._markdown_without_title[pos_inner_config:]
+            inner_config_str = self._markdown_content[pos_inner_config:]
             p = '```\nMING-ARTICLE-CONFIG\n(.*?)\n```'
             j_l = re.findall(p, inner_config_str,re.S)
             if j_l:
@@ -179,10 +189,10 @@ class Article(Modal):
                     #print 'inner config %s:%s'%(k,v,)
                     self[k] = v
             # 从文件从删除配置的内容
-            self._markdown_without_title = self._markdown_without_title[:pos_inner_config]
+            self._markdown_content = self._markdown_content[:pos_inner_config]
 
-        #print self._markdown_without_title
-        # _sort_value 
+        #print self._markdown_content
+        # _sort_value, 如果有文章发布时间，就用发布时间来排序 
         if self.article_publish_date:
             if ':' in self.article_publish_date:
                 self._sort_value = string_to_time_float(self.article_publish_date)
@@ -191,12 +201,14 @@ class Article(Modal):
         else:
             self.article_publish_date = date_to_string(self._mtime)
 
-    def render_article_html(self):
-        self._article_html = render(self._markdown_without_title.decode('utf-8'))
+    def render_content_html(self):
+        '''将正文内容的 markdown 转换为 html'''
+        self._content_html = render(self._markdown_content.decode('utf-8'))
 
-    def render_html(self):
+    def render_page(self):
+        '''调用模板文件，渲染整个 html 页面'''
         self._load_next_previous_article() #载入上一篇和下一篇文章
-        self.render_article_html()
+        self.render_content_html() # 获取正文内容
         # css
         d_css = {}
         if self.article_css:
@@ -213,15 +225,16 @@ class Article(Modal):
         html = theme.render(theme_dir = theme_dir,article = self,d_css = d_css)
         return html
 
-    def generate_html(self):
-        html = self.render_html()
+    def generate_page(self):
+        '''将页面渲染，然后输出文件'''
+        html = self.render_page()
         if not self.article_link:
             raise Exception('No Article Link')
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
                 self.article_link)
-        print output_filename
+        print 'generate page:', output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
@@ -231,79 +244,50 @@ class Article(Modal):
 
     def _load_next_previous_article(self):
         '''载入上一篇和下一篇文章'''
-        site_maker = SiteMaker() 
+        ArticleManager.sharedManager().load_all_articles()
+        link_list = ArticleManager.sharedManager().link_list()
         link = self.article_link
-        if link not in site_maker.link_list:
+        if link not in link_list:
             return
-        pos = site_maker.link_list.index(link)
+        pos = link_list.index(link)
         # 上一篇文章
         if pos > 0 :
             previous_pos = pos - 1
-            previous_link = site_maker.link_list[previous_pos]
-            self._previous_article = site_maker.article_table[previous_link]
+            previous_link = link_list[previous_pos]
+            self._previous_article = ArticleManager.sharedManager().article_for_link(previous_link) 
         # 下一篇文章
-        if pos < len(site_maker.link_list) - 1:
+        if pos < len(link_list) - 1:
             next_pos = pos + 1
-            next_link = site_maker.link_list[next_pos]
-            self._next_article = site_maker.article_table[next_link]
+            next_link = link_list[next_pos]
+            self._next_article = ArticleManager.sharedManager().article_for_link(next_link)
+
+    def is_modified(self):
+        '''文章以及配置文件是否有修改过'''
+        modified = False
+        if os.path.exists(self._article_filepath):
+            article_mtime = os.stat(self._article_filepath).st_mtime 
+            if self._mtime != article_mtime:
+                modified = True
+        if os.path.exists(self._article_config_filepath):
+            article_config_mtime = os.stat(self._article_config_filepath).st_mtime 
+            if self._config_mtime != article_config_mtime:
+                modified = True
+        return modified
 
 # site
 class SiteMaker(Modal):
     def __init__(self):
         super(SiteMaker,self).__init__()
-        self.article_table = {}
-        self.link_list = []
         self._load_config()
-        self._prepare_articles()
+        ArticleManager.sharedManager().load_all_articles()
 
     def _load_config(self):
         config = Config()
         for (k,v) in config.items():
             self[k] = v
 
-    def _prepare_articles(self):
-        folder = DOCUMENTS_DIR 
-        #print folder
-        name_list = os.listdir(folder)
-        #print name_list
-        file_name_list = [os.path.join(folder,f) for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN'] and not f.startswith('_')]
-        file_name_list.sort(lambda f1,f2: int(os.stat(f2).st_mtime) - int(os.stat(f1).st_mtime))
-        self.article_table = {}
-        for f in file_name_list:
-            _,filename = os.path.split(f)
-            article = Article(filename)
-            link = article.article_link
-            self.article_table[link] = article
-        def _cmp(link_1, link_2):
-            article_1 = self.article_table.get(link_1)
-            article_2 = self.article_table.get(link_2)
-            return int(article_2._sort_value - article_1._sort_value)
-        self.link_list = self.article_table.keys() 
-        self.link_list.sort(_cmp) # 排序的链接列表
-
-    def index_article(self):
-        top_link = self.link_list[0]
-        article = self.article_table[top_link]
-        return article
-
-    def archive(self):
-        '''按年列出文件列表'''
-        d = {}
-        for link in self.link_list:
-            article = self.article_table[link]
-            col = article.article_publish_date.split('-')
-            year = col[0]
-            if year not in d:
-                l = [article,]
-                d[year] = l
-            else:
-                l = d[year]
-                l.append(article)
-                d[year] = l
-        return d
-
     def render_archive(self):
-        d_archive = self.archive()
+        d_archive = ArticleManager.sharedManager().archive_by_year() 
         theme_name = self.site_theme or 'default'
         env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
         theme = env.get_template('archive.html')
@@ -313,9 +297,12 @@ class SiteMaker(Modal):
         return html
 
     def render_feed(self):
+        link_list = ArticleManager.sharedManager().link_list()
         item_list = []
-        for link in self.link_list:
-            article = self.article_table[link]
+        for link in link_list:
+            article = ArticleManager.sharedManager().article_for_link[link] 
+            if not article:
+                continue
             item = rfeed.Item(title = article.article_title,
                     link = article.article_link,
                     description = article.article_subtitle,
@@ -338,8 +325,11 @@ class SiteMaker(Modal):
         fg.link(href = self.site_url,rel = 'alternate')
         fg.link(href = self.site_url + 'atom.xml',rel = 'self')
         fg.language('zh-cn')
-        for link in self.link_list:
-            article = self.article_table[link]
+        link_list = ArticleManager.sharedManager().link_list()
+        for link in link_list:
+            article = ArticleManager.sharedManager().article_for_link(link)
+            if not article:
+                continue
             fe = fg.add_entry()
             fe.id(article.article_link)
             fe.link(link = {'href':self.site_url + article.article_link})
@@ -350,26 +340,29 @@ class SiteMaker(Modal):
             d = datetime.strptime(article.article_publish_date,'%Y-%m-%d') 
             pubdate = datetime(year = d.year, month = d.month, day = d.day,tzinfo = UTC(8))
             fe.pubdate(pubdate) 
-            article.render_article_html()
-            fe.content(content = article._article_html,
+            article.render_content_html()
+            fe.content(content = article._content_html,
                     type = 'html')
         atom_feed = fg.atom_str(pretty = True)
         return atom_feed
 
-    def create_article(self,name,title = 'untitled',link = None):
+    def create_article(self,name,title = 'untitled',link = None, config_file = False):
         '''往 _documents 中添加一篇新文章'''
         config = Config()
+        d.clear() # 清理所有的信息，重写 article 配置 
         config.article_title = title
         if not link:
             config.article_link = title + '.html'
         else:
             config.article_link = link
-        del config['site_name']
-        del config['site_name_mobile']
-        del config['site_title']
-        del config['site_title_mobile']
-        del config['site_url']
-        del config['site_links']
+        config.article_subtitle = ''
+        config.article_theme = 'default'
+        config.article_publish_date = ''
+        config.article_cover_photo = ''
+        config.article_category = ''
+        config.article_comments = 1
+        config.article_css = '{}'
+        config_str = json.dumps(config)
         _,ext = os.path.splitext(name)
         if ext not in ['md','markdown']:
             name += '.md'
@@ -378,23 +371,29 @@ class SiteMaker(Modal):
         article_filename = os.path.join(DOCUMENTS_DIR,name)
         print 'article:%s'%(article_filename,)
         f = open(article_filename,'w')
-        f.write(title)
-        f.close()
-        article_config_filename = article_filename + '.json'
-        print 'article config:%s'%(article_config_filename,)
-        s = json.dumps(config)
-        f = open(article_config_filename,'w')
-        f.write(s)
+        f.write(title + '\n\n')
+        # 写入配置到文件里面
+        if not config_file:
+            inner_config_str = '```\nMING-ARTICLE-CONFIG\n' + config_str + '\n```'
+            f.write(inner_config_str)
         f.close()
         print 'article title:%s'%(title,)
         print 'article link:%s'%(link,)
+        # config 
+        if config_file:
+            article_config_filename = article_filename + '.json'
+            f = open(article_config_filename,'w')
+            f.write(config_str)
+            f.close()
+            print 'article config:%s'%(article_config_filename,)
 
     def make_article(self,article_filename):
         _,ext = os.path.splitext(article_filename)
         if not ext:
             article_filename += '.md'
-        article = Article(article_filename)
-        article.generate_html()
+        article = ArticleManager.sharedManager().article_for_filename(article_filename)
+        if article:
+            article.generate_page()
 
     def make_archive(self):
         #html = 'archive.html'
@@ -411,9 +410,10 @@ class SiteMaker(Modal):
         copy_theme(theme_name)
 
     def make_index(self):
-        top_link = self.link_list[0]
-        article = self.article_table[top_link]
-        html = article.render_html()
+        article = ArticleManager.sharedManager().top_article()
+        if not article:
+            return
+        html = article.render_page()
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR, 'index.html')
@@ -427,8 +427,9 @@ class SiteMaker(Modal):
 
     def make_about(self):
         article_filename = '_about.md'
-        article = Article(article_filename)
-        article.generate_html()
+        article = ArticleManager.sharedManager().article_for_filename(article_filename)
+        if article:
+            article.generate_page()
 
     def make_feed(self):
         #xml =  self.render_feed()
@@ -446,8 +447,8 @@ class SiteMaker(Modal):
         self.make_archive()
         self.make_feed()
         # 依次生成每一篇文章
-        for (link,article) in self.article_table.items():
-            article.generate_html()
+        for (_,article) in ArticleManager.sharedManager().article_table.items():
+            article.generate_page()
 
 # copy themes
 def copy_theme(name):
@@ -488,6 +489,84 @@ def copy_theme(name):
                 os.makedirs(to_path)
                 shutil.copystat(from_path,to_path)
                 print 'copy dir: %s to %s'%(from_path,to_path,) 
+
+# ArticleManager
+SHARED_ARTICLE_MANAGER = None
+class ArticleManager(Modal):
+    def __init__(self):
+        super(ArticleManager,self).__init__()
+        self.article_table = {}
+        self.load_all_articles()
+
+    @classmethod
+    def sharedManager(CLS):
+        global SHARED_ARTICLE_MANAGER
+        if not SHARED_ARTICLE_MANAGER:
+            SHARED_ARTICLE_MANAGER = ArticleManager()
+        return SHARED_ARTICLE_MANAGER
+
+    def load_all_articles(self):
+        '''载入所有的文章列表'''
+        name_list = os.listdir(DOCUMENTS_DIR)
+        name_list = [f for f in name_list if os.path.splitext(f)[-1].upper() in ['.MD','.MARKDOWN'] and not f.startswith('_')]
+        map(lambda article_filename:self.article_for_filename(article_filename),
+                name_list)
+
+    def article_for_filename(self, article_filename):
+        '''使用文件名找到一篇文章'''
+        article = self.article_table.get(article_filename,None)
+        if not article:
+            article = Article(article_filename)
+            self.article_table[article_filename] = article 
+        else:
+            if article.is_modified():
+                article = Article(article_filename)
+                self.article_table[article_filename] = article
+        return article
+                
+    
+    def article_for_link(self,article_link):
+        '''使用链接找到一篇文章'''
+        l = filter(lambda article:article.article_link == article_link,
+                self.article_table.values())
+        article = l[0] if l else None
+        if not article:
+            return None
+        if article.is_modified():
+            article = Article(article_filename)
+            self.article_table[article_filename] = article
+        return article
+
+    def link_list(self):
+        '''排序后的链接列表'''
+        sorted_articles = self.article_table.values()
+        sorted_articles.sort(lambda a1,a2: int(a2._sort_value - a1._sort_value))
+        links = reduce(lambda l,a: l + [a.article_link or ''],
+                sorted_articles,[])
+        return links
+
+    def archive_by_year(self):
+        '''按年分组的文章列表'''
+        d = {}
+        sorted_articles = self.article_table.values()
+        sorted_articles.sort(lambda a1,a2: int(a2._sort_value - a1._sort_value))
+        for article in sorted_articles:
+            col = article.article_publish_date.split('-')
+            year = col[0]
+            if year not in d:
+                l = [article,]
+                d[year] = l
+            else:
+                l = d[year]
+                l.append(article)
+                d[year] = l
+        return d
+
+    def top_article(self):
+        '''首页的文章'''
+        links = self.link_list()
+        top_link = links[0] if links else None 
+        return self.article_for_link(top_link)
 
 # cli
 def cli_make_article():
@@ -633,13 +712,13 @@ def help():
     print 'ming test: test'
 
 # test
-def _test_generate_html():
+def _test_generate_page():
     filename = 'README.md'
     article = Article(article_filename = filename)
-    article.generate_html()
+    article.generate_page()
 
 def test():
-    _test_generate_html()
+    _test_generate_page()
 
 # start
 if __name__ == '__main__':
