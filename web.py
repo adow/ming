@@ -85,14 +85,14 @@ class CliPage (tornado.web.RequestHandler):
         cli = script.split(' ')
         subprocess.call(cli)
 
-# writer
-class WriterArchive(tornado.web.RequestHandler):
+# Dashboard 
+class DashboardArchive(tornado.web.RequestHandler):
     def get(self):
         site_maker = SiteMaker()
         s = site_maker.render_archive()
         self.write(s)
 
-class WriterArticle(tornado.web.RequestHandler):
+class DashboardArticle(tornado.web.RequestHandler):
     def get(self,name,ext):
         filename = name + ext
         article = None
@@ -104,28 +104,28 @@ class WriterArticle(tornado.web.RequestHandler):
             html = article.render_page()
             self.write(html)
 
-class WriterIndex(tornado.web.RequestHandler):
+class DashboardIndex(tornado.web.RequestHandler):
     def get(self):
         article = ArticleManager.sharedManager().top_article()
         if article:
             html = article.render_page()
             self.write(html)
 
-class WriterAbout(tornado.web.RequestHandler):
+class DashboardAbout(tornado.web.RequestHandler):
     def get(self):
         article = ArticleManager.sharedManager().article_for_filename('_about.md')
         if article:
             html = article.render_page()
             self.write(html)
 
-class WriterFeed(tornado.web.RequestHandler):
+class DashboardFeed(tornado.web.RequestHandler):
     def get(self):
         site_maker = SiteMaker()
         xml = site_maker.render_atom()
         self.write(xml)
         self.set_header('Content-Type','application/rss+xml')
 
-class WriterDash(tornado.web.RequestHandler):
+class Dashboard(tornado.web.RequestHandler):
     def get(self):
         ArticleManager.sharedManager().load_all_articles()
         html = '<h1>MING LocalServer</h1>'
@@ -143,10 +143,10 @@ class WriterDash(tornado.web.RequestHandler):
         html += '</ul>'
         html += '<h2>Dynamic Preview</h2>'
         html += '<ul>'
-        html += "<li><a href = '/_writer/index.html'>首页</a></li>"
-        html += "<li><a href = '/_writer/archive.html'>归档</a></li>"
-        html += "<li><a href = '/_writer/about.html'>关于</a></li>"
-        html += "<li><a href = '/_writer/atom.xml'>Feed</a></li>"
+        html += "<li><a href = '/_dashboard/index.html'>首页</a></li>"
+        html += "<li><a href = '/_dashboard/archive.html'>归档</a></li>"
+        html += "<li><a href = '/_dashboard/about.html'>关于</a></li>"
+        html += "<li><a href = '/_dashboard/atom.xml'>Feed</a></li>"
         html += '</ul>'
         html += '<h3>Article List</h3>'
         html += '<ul>'
@@ -183,12 +183,12 @@ class WriterDash(tornado.web.RequestHandler):
 def start_local_server():
     handlers = [
             (r'/article/.*',ArticlePage),
-            (r'/_writer/index.html',WriterIndex),
-            (r'/_writer/archive.html',WriterArchive),
-            (r'/_writer/about.html',WriterAbout),
-            (r'/_writer/atom.xml',WriterFeed),
-            (r'/_writer/(.*)(.md|.markdown|.html|.htm)',WriterArticle),
-            (r'/_writer/',WriterDash),
+            (r'/_dashboard/index.html',DashboardIndex),
+            (r'/_dashboard/archive.html',DashboardArchive),
+            (r'/_dashboard/about.html',DashboardAbout),
+            (r'/_dashboard/atom.xml',DashboardFeed),
+            (r'/_dashboard/(.*)(.md|.markdown|.html|.htm)',DashboardArticle),
+            (r'/_dashboard/',Dashboard),
             (r'/_cli/(.*)',CliPage),
             (r'/_themes/(.*)/article.html',ThemeArticle),
             (r'/_themes/(.*)/index.html',ThemeArticle),
