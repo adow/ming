@@ -1,3 +1,3 @@
 # ming
 
-
+ming static blogs
