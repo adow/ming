@@ -13,6 +13,7 @@ import time
 import re
 import shutil
 from datetime import datetime,date, tzinfo,timedelta
+import subprocess
 
 from jinja2 import Environment,PackageLoader
 from mikoto.libs.text import render
@@ -762,8 +763,24 @@ def cli_init():
     print 'output:%s'%(output_dir,)
     os.makedirs(output_dir)
 
+def cli_server():
+    '''启动本地服务器'''
+    params = sys.argv[2:] if len(sys.argv) > 2 else []
+    opts,args = getopt.getopt(sys.argv[2:],"p:",["port=",])
+    port = 8003
+    for (op,value) in opts:
+        if op in ['-p','--port']:
+            port = value
+    server_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+            'mingserver.py')
+    print server_filename 
+    script = 'python %s %s'%(server_filename,port,)
+    print '=> Site is running on http://localhost:%s/index.html'%(port,)
+    print '=> You can preview an article on http://localhost:%s/preview/<article-filename.md>'%(port,)
+    subprocess.call(script, shell = True)
+
 def help():
-    print 'ming local-server: start local web server' 
+    print 'ming local-server -p <port>: start local web server' 
     print 'ming create-article -n <articlename> -t <article title>'
     print 'ming make-article <article-name>: make html'
     print 'ming make-archive: make archive.html'
@@ -789,8 +806,7 @@ if __name__ == '__main__':
     else:
         cmd = sys.argv[1]
         params = sys.argv[2:] if len(sys.argv) > 2 else []
-        from web import start_local_server 
-        {'local-server':start_local_server,
+        {'local-server':cli_server,
             'create-article':cli_create_article,
             'make-article':cli_make_article,
             'make-archive':cli_make_archive,
