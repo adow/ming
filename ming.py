@@ -775,8 +775,10 @@ def cli_server():
             'mingserver.py')
     print server_filename 
     script = 'python %s %s'%(server_filename,port,)
-    print '=> Site is running on http://localhost:%s/index.html'%(port,)
-    print '=> You can preview an article on http://localhost:%s/preview/<article-filename.md>'%(port,)
+    print '=> Site is running on'
+    print '\t http://localhost:%s/index.html'%(port,)
+    print '=> You can preview site before building on '
+    print '\t http://localhost:%s/preview/index.html'%(port,)
     subprocess.call(script, shell = True)
 
 def help():

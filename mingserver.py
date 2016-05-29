@@ -15,7 +15,7 @@ from jinja2 import Environment,PackageLoader
 from ming import Article, ArticleManager,OUTPUT_DIR,DOCUMENTS_DIR,THEMES_DIR,SiteMaker
 
 # 当前 ming 的执行目录
-MING_DIR = os.path.realpath(__file__) if os.path.islink(__file__) else __file__
+MING_DIR = os.path.dirname(os.path.realpath(__file__) if os.path.islink(__file__) else __file__)
 
 # themes
 THEMES_PATH = os.path.join('.',THEMES_DIR)
@@ -39,6 +39,7 @@ class ThemesStaticPage:
         f.close()
         return data
 
+# output
 class SitePage:
     def GET(self,name, ext):
         '''输出的文件'''
@@ -50,21 +51,70 @@ class SitePage:
         f.close()
         return s
 
-class ArticlePreviewPage:
-    def GET(self,filename):
+# preview
+class PreviewArticlePage:
+    '''/preview/<article-filename.md>'''
+    def GET(self,name,ext):
         '''用于预览页面'''
-        article = ArticleManager.sharedManager().article_for_filename(filename) 
+        filename = name + ext
+        article = None
+        if ext in ['.md','.markdown']:
+            article = ArticleManager.sharedManager().article_for_filename(filename)
+        else:
+            article = ArticleManager.sharedManager().article_for_link(filename)
         if article:
             html = article.render_page()
             return html
 
+class PreviewArchivePage:
+    '''/preview/archive.html'''
+    def GET(self):
+        site_maker = SiteMaker()
+        s = site_maker.render_archive()
+        return s
 
+class PreviewIndexPage:
+    '''/preview/index.html'''
+    def GET(self):
+        print 'index'
+        article = ArticleManager.sharedManager().top_article()
+        if article:
+            theme_index_filename = os.path.join(THEMES_PATH,article.site_theme,
+                    'index.html')
+            if os.path.exists(theme_index_filename):
+                html = article.render_page_for_index()
+            else:
+                html = article.render_page()
+            return html
+        else:
+            return 'no index'
+
+class PreviewAboutPage:
+    '''/preview/about.html'''
+    def GET(self):
+        article = ArticleManager.sharedManager().article_for_filename('_about.md')
+        if article:
+            html = article.render_page()
+            return html
+        else:
+            return 'no about page'
+
+class PreviewFeedsPage:
+    '''/preview/atom.xml'''
+    def GET(self):
+        site_maker = SiteMaker()
+        xml = site_maker.render_atom()
+        return xml
 
 routers = (
         #'/(.*)','TestPage',
-        r'/(.*)(.html|.xml)',SitePage,
         r'/_themes/(.*)', ThemesStaticPage,
-        r'/preview/(.*)', ArticlePreviewPage,
+        r'/preview/index.html',PreviewIndexPage,
+        r'/preview/archive.html', PreviewArchivePage,
+        r'/preview/about.html', PreviewAboutPage,
+        r'/preview/atom.xml',PreviewFeedsPage,
+        r'/preview/(.*)(.html|.md|.htm|.markdown)', PreviewArticlePage,
+        r'/(.*)(.html|.xml)',SitePage,
         )
 
 def run():
