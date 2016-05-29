@@ -107,7 +107,7 @@ class PreviewFeedsPage:
         return xml
 
 routers = (
-        '/test/(.*)','TestPage',
+        r'/test/(.*)','TestPage',
         r'/_themes/(.*)', ThemesStaticPage,
         r'/preview/index.html',PreviewIndexPage,
         r'/preview/archive.html', PreviewArchivePage,
