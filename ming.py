@@ -226,22 +226,22 @@ class Article(Modal):
         html = theme.render(theme_dir = theme_dir,article = self,d_css = d_css)
         return html
 
-    def generate_page(self):
+    def generate_page(self,index = False):
         '''将页面渲染，然后输出文件'''
+        # copy theme
+        theme_name = self.article_theme or 'default'
+        copy_theme_if_necessory(theme_name)
         html = self.render_page()
         if not self.article_link:
             raise Exception('No Article Link')
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
-                self.article_link)
+                self.article_link if not index else 'index.html')
         print 'generate page:', output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
-        # copy theme
-        theme_name = self.article_theme or 'default'
-        copy_theme_if_necessory(theme_name)
 
     def render_page_for_index(self):
         self._load_next_previous_article() #载入上一篇和下一篇文章
@@ -267,6 +267,9 @@ class Article(Modal):
 
     def generate_page_for_index(self):
         '''生成首页'''
+        # copy theme
+        theme_name = self.theme_name or 'default'
+        copy_theme_if_necessory(theme_name)
         html = self.render_page_for_index()
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
@@ -276,9 +279,6 @@ class Article(Modal):
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
-        # copy theme
-        theme_name = self.theme_name or 'default'
-        copy_theme_if_necessory(theme_name)
 
     def _load_next_previous_article(self):
         '''载入上一篇和下一篇文章'''
@@ -459,8 +459,7 @@ class SiteMaker(Modal):
             article.generate_page_for_index()
         else:
             print 'generate top article'
-            article.article_link = 'index.html'
-            article.generate_page()
+            article.generate_page(index = True)
         
 
     def make_about(self):
@@ -621,7 +620,7 @@ class ArticleManager(Modal):
         links = self.link_list()
         top_link = links[0] if links else None 
         article = self.article_for_link(top_link)
-        return copy.deepcopy(article)
+        return article
 
 # cli
 def cli_make_article():
