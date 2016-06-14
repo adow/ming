@@ -598,8 +598,8 @@ class ArticleManager(Modal):
         if not article:
             return None
         if article.is_modified():
-            article = Article(article_filename)
-            self.article_table[article_filename] = article
+            article = Article(article._article_filename)
+            self.article_table[article._article_filename] = article
         return article
 
     def link_list(self):
