@@ -295,7 +295,9 @@ code {
   margin: 30px auto;
 }
 }
-
+#article-content, #article-content-body {
+  word-break: break-word;
+}
 #article-content .article-author {
     text-align: center;
 }
