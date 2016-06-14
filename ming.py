@@ -15,7 +15,7 @@ import shutil
 from datetime import datetime,date, tzinfo,timedelta
 import subprocess
 
-from jinja2 import Environment,PackageLoader
+from jinja2 import Environment,PackageLoader,Template
 from mikoto.libs.text import render
 from vendor import rfeed
 from feedgen.feed import FeedGenerator
@@ -220,9 +220,13 @@ class Article(Modal):
                 css_v += "}"
                 d_css[selector] = css_v
         theme_name = self.article_theme or 'default'
-        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
-        theme = env.get_template('article.html')
         theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
+        theme_filename = os.path.join(THEMES_DIR, theme_name, 'article.html')
+        f_template = open(theme_filename,'r')
+        template = f_template.read()
+        template = unicode(template,'utf-8')
+        f_template.close()
+        theme = Template(template)
         html = theme.render(theme_dir = theme_dir,article = self,d_css = d_css)
         return html
 
@@ -238,7 +242,7 @@ class Article(Modal):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
                 self.article_link if not index else 'index.html')
-        print 'generate page:', output_filename
+        print 'make page: ', output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
@@ -257,9 +261,13 @@ class Article(Modal):
                 css_v += "}"
                 d_css[selector] = css_v
         theme_name = self.site_theme or 'default' # 使用 site_theme
-        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
-        theme = env.get_template('index.html')
+        theme_filename = os.path.join(THEMES_DIR, theme_name, 'index.html')
+        f_template = open(theme_filename,'r')
+        template = f_template.read()
+        template = unicode(template,'utf-8')
+        f_template.close()
         theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
+        theme = Template(template)
         html = theme.render(theme_dir = theme_dir,
                 article = self,d_css = d_css,
                 archive = archive)
@@ -275,7 +283,7 @@ class Article(Modal):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR,
                 'index.html')
-        print 'generate page:', output_filename
+        print 'make index page: ', output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
@@ -327,9 +335,13 @@ class SiteMaker(Modal):
     def render_archive(self):
         d_archive = ArticleManager.sharedManager().archive_by_year() 
         theme_name = self.site_theme or 'default'
-        env=Environment(loader=PackageLoader(THEMES_DIR.replace('./',''),theme_name))
-        theme = env.get_template('archive.html')
         theme_dir = os.path.join('/',THEMES_DIR.replace('./',''),theme_name) 
+        theme_filename = os.path.join(THEMES_DIR, theme_name, 'archive.html')
+        f_template = open(theme_filename,'r')
+        template = f_template.read()
+        template = unicode(template,'utf-8')
+        f_template.close()
+        theme = Template(template)
         html = theme.render(theme_dir = theme_dir,site=self,
                 archive = d_archive)
         return html
@@ -439,7 +451,7 @@ class SiteMaker(Modal):
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
         output_filename = os.path.join(OUTPUT_DIR, 'archive.html')
-        print output_filename
+        print 'make archive: ', output_filename
         f = open(output_filename,'w')
         f.write(html.encode('utf-8'))
         f.close()
@@ -455,10 +467,10 @@ class SiteMaker(Modal):
         print 'theme_index_filename:%s'%(theme_index_filename,)
         # 如果模板里面有首页的话，用首页生成，否则就当普通的文章生成
         if os.path.exists(theme_index_filename):
-            print 'generate index'
+            print 'make index'
             article.generate_page_for_index()
         else:
-            print 'generate top article'
+            print 'make top article'
             article.generate_page(index = True)
         
 
@@ -476,7 +488,7 @@ class SiteMaker(Modal):
         f = open(filename,'w')
         f.write(xml)
         f.close()
-        print filename
+        print 'make feed: ',filename
 
     def make_site(self):
         self.make_index()
