@@ -620,7 +620,8 @@ class ArticleManager(Modal):
         '''首页的文章'''
         links = self.link_list()
         top_link = links[0] if links else None 
-        return self.article_for_link(top_link)
+        article = self.article_for_link(top_link)
+        return copy.deepcopy(article)
 
 # cli
 def cli_make_article():
