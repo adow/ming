@@ -162,19 +162,19 @@ class Dashboard(tornado.web.RequestHandler):
         html += '<ul>'
         html += "<li><a>Default Theme</a></li>"
         html += '<ul>'
-        html += "<li><a href = '/_themes/default/index.html'>index</a></li>"
-        html += "<li><a href = '/_themes/default/article.html'>article</a></li>"
-        html += "<li><a href = '/_themes/default/about.html'>about</a></li>"
-        html += "<li><a href = '/_themes/default/archive.html'>archive</a></li>"
+        html += "<li><a href = '/themes/default/index.html'>index</a></li>"
+        html += "<li><a href = '/themes/default/article.html'>article</a></li>"
+        html += "<li><a href = '/themes/default/about.html'>about</a></li>"
+        html += "<li><a href = '/themes/default/archive.html'>archive</a></li>"
         html += '</ul>'
         html += '</ul>'
         html += '<ul>'
         html += "<li><a>Simple Theme</a></li>"
         html += '<ul>'
-        html += "<li><a href = '/_themes/simple/index.html'>index</a></li>"
-        html += "<li><a href = '/_themes/simple/article.html'>article</a></li>"
-        html += "<li><a href = '/_themes/simple/about.html'>about</a></li>"
-        html += "<li><a href = '/_themes/simple/archive.html'>archive</a></li>"
+        html += "<li><a href = '/themes/simple/index.html'>index</a></li>"
+        html += "<li><a href = '/themes/simple/article.html'>article</a></li>"
+        html += "<li><a href = '/themes/simple/about.html'>about</a></li>"
+        html += "<li><a href = '/themes/simple/archive.html'>archive</a></li>"
         html += '</ul>'
         html += '</ul>'
         self.write(html)
@@ -190,11 +190,11 @@ def start_local_server():
             (r'/_dashboard/(.*)(.md|.markdown|.html|.htm)',DashboardArticle),
             (r'/_dashboard/',Dashboard),
             (r'/_cli/(.*)',CliPage),
-            (r'/_themes/(.*)/article.html',ThemeArticle),
-            (r'/_themes/(.*)/index.html',ThemeArticle),
-            (r'/_themes/(.*)/about.html',ThemeAbout),
-            (r'/_themes/(.*)/archive.html',ThemeArchive),
-            (r'/_themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
+            (r'/themes/(.*)/article.html',ThemeArticle),
+            (r'/themes/(.*)/index.html',ThemeArticle),
+            (r'/themes/(.*)/about.html',ThemeAbout),
+            (r'/themes/(.*)/archive.html',ThemeArchive),
+            (r'/themes/(.*)',tornado.web.StaticFileHandler,{'path':THEMES_PATH}),
             (r'/(.*)(.html|.xml)',SitePage),
             ]
 

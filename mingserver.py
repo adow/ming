@@ -108,7 +108,7 @@ class PreviewFeedsPage:
 
 routers = (
         r'/test/(.*)','TestPage',
-        r'/_themes/(.*)', ThemesStaticPage,
+        r'/themes/(.*)', ThemesStaticPage,
         r'/preview/index.html',PreviewIndexPage,
         r'/preview/archive.html', PreviewArchivePage,
         r'/preview/about.html', PreviewAboutPage,

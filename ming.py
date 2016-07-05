@@ -22,7 +22,7 @@ from feedgen.feed import FeedGenerator
 
 OUTPUT_DIR = './_output' 
 DOCUMENTS_DIR = './_documents' 
-THEMES_DIR = './_themes' 
+THEMES_DIR = './themes' 
 
 #time
 def now():
@@ -502,9 +502,9 @@ class SiteMaker(Modal):
 # copy themes
 _THEMES_COPYED = [] # 已经拷贝过的主题会保存在这里
 def copy_theme(name):
-    '''copy theme from ./_themes/<name> to ./output/_themes/<name>'''
+    '''copy theme from ./themes/<name> to ./output/themes/<name>'''
     theme_dir_from = os.path.join(THEMES_DIR,name)
-    theme_dir_to = os.path.join(OUTPUT_DIR,'_themes',name)
+    theme_dir_to = os.path.join(OUTPUT_DIR,'themes',name)
     if not os.path.exists(theme_dir_from):
         print 'theme not found'
         return
@@ -766,8 +766,8 @@ def cli_init():
     shutil.copytree(documents_dir_from,documents_dir_to)
     print 'documents:%s'%(documents_dir_to,)
     # _themes
-    themes_dir_from = os.path.join(ming_dir,'_themes')
-    themes_dir_to = os.path.join(d,'_themes')
+    themes_dir_from = os.path.join(ming_dir,'themes')
+    themes_dir_to = os.path.join(d,'themes')
     shutil.copytree(themes_dir_from,themes_dir_to)
     print 'themes:%s'%(themes_dir_to,)
     # _output
