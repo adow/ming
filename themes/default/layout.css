@@ -1,6 +1,5 @@
 body {
-  font-family: Times, TimesNR, 'New Century Schoolbook',
-  Georgia, 'New York', serif;
+  font-family: 'Droid Serif','PingFang SC','Hiragino Sans GB','Droid Sans Fallback','Microsoft YaHei','sans-serif';
 }
 body,div,td,span,a {
   font-size: 17px;
@@ -400,6 +399,7 @@ code {
   margin: 35px;
   font-size: 24px;
   font-weight: 700;
+  text-decoration:underline;
 }
 #archive h3 {
   font-size: 17px;
@@ -418,7 +418,7 @@ code {
   margin: 35px auto;
   max-width: 300px;
   height: 1.0px;
-  background-color: #4a4a4a;
+  background-color: #9b9b9b;
 }
 @media screen and (max-width: 768px) {
 #archive .archive-year .line-year {
@@ -431,12 +431,15 @@ code {
   padding-left: 35px;
   padding-right: 35px;
 }
-#archive .article-list-item p.subtitle,#archive .article-list-item p.subtitle a {
+#archive .article-list-item p.subtitle,#archive .article-list-item p.subtitle a{
   margin: 0px auto;
   font-size: 17px;
   color: #9b9b9b;
   font-weight: 400;
   max-width: 400px;
+  text-decoration: none;
+}
+#archive .article-list-item .post-title a {
   text-decoration: none;
 }
 #archive .article-list-item p.publish-date {

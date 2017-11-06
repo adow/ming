@@ -46,7 +46,7 @@
       <h1>Archive</h1>
       <div class = 'archive-year'>
         {% for (year,article_list) in archive.items() %}
-        <h2>2016</h2>
+        <h2>{{ year }}</h2>
         <div class = 'line-year'></div>
         {% for article in article_list %}
         <div class = 'article-list-item'>

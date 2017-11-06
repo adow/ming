@@ -1,6 +1,5 @@
 body {
-  font-family: Times, TimesNR, 'New Century Schoolbook',
-  Georgia, 'New York', serif;
+  font-family: 'Droid Serif','PingFang SC','Hiragino Sans GB','Droid Sans Fallback','Microsoft YaHei','sans-serif';
 }
 body,div,td,span,a {
   font-size: 17px;
