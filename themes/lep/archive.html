@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="vTaWd72F_kJY6mNbfoCQuutuGdH1kSsg7o3F31b3wgg" />
+  <meta name="baidu-site-verification" content="6rfk66K9Nk" />
+  <title>{{ site['site_title'] }}</title>
+  <meta name="author" content="{{ site.author }}">
+  {% if site.site_description %}
+  <meta name="description" content="{{ site.site_description }}">
+  {% endif %}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ theme_dir }}/vendor/normalize.css">
+  <script src = "{{ theme_dir }}/vendor/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{ theme_dir }}/layout.css">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.site_title }}" href="feed.xml">
+   <style type="text/css">
+    
+  </style>  
+</head>
+<body>
+  <div id="layout-container">
+    <div id = 'site-nav'>
+      <div class = 'site-name'><a href = 'index.html'><span class = 'site-name-desktop color-gray'>{{ site.site_title }}</span></a></div>
+      <ul class = 'site-links color-gray'>
+        {% for link in site.site_links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class = 'site-menu'>
+        <a href='#'><img src= '{{ theme_dir }}/images/menu-gray.png'/></a> 
+      </div>
+      
+    </div>
+    <div id = 'site-links-mobile'>
+      <a class = 'site-links-mobile-close color-gray' href = '#'>close</a>
+      <div class="clearfix"></div>
+      <ul>
+        {% for link in site.site_links %}
+        <li><a href = '{{ link['url'] }}'>{{ link['title'] }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class ='clearfix'></div>
+    <div id = 'archive'>
+      <h1>Archive</h1>
+      <div class = 'archive-year post-list'>
+        {% for (year,article_list) in archive.items() %}
+        <h2>{{ year }}</h2>
+        {% for article in article_list %}
+        <div class = 'article-list-item'>
+          <h3 class = 'post-title'><a href = '{{article.article_link}}'>{{ article.article_title }}</a></h3> 
+          {% if article.article_subtitle %}
+          <p class = 'subtitle post-subtitle'><a href = "{{article.article_link}}">{{ article.article_subtitle }}</a></p>
+          {% endif %}
+          <p class = 'publish-date post-meta'>{{ article.article_publish_date }}</p>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class = 'footer'>
+        Powered by MING 
+      </div>
+  </div>
+</body>
+<script type = 'text/javascript'>
+window.onscroll = function(){
+  var document_top = document.documentElement.scrollTop;
+  var body_top = document.body.scrollTop;
+  //console.log(document_top.toString() + ',' + body_top.toString());
+  var site_nav = $('#site-nav');
+  if (body_top >= 100.0) {
+    site_nav.css('visibility','hidden');
+  }
+  else {
+    site_nav.css('visibility','visible');
+  }
+};
+$(document).ready(function(){
+  $('.site-menu').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','block');
+      });
+  $('.site-links-mobile-close').click(function(){
+      var site_links_mobile = $('#site-links-mobile');
+      site_links_mobile.css('display','none');
+      });
+});
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-79374744-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</html>
