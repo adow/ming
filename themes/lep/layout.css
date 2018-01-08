@@ -124,6 +124,10 @@ h3 {
   -webkit-font-smoothing: antialiased;
   text-rendering:optimizeLegibility;
 }
+#article #article-content ul li {
+  margin-left: 18px;
+  margin-right: 18px;
+}
 
 #article #article-content pre {
   line-height: 1.8;
@@ -178,7 +182,6 @@ h3 {
   max-width:760px;
 }
 #article .footer{
-  margin:18px auto;
   font-size:13px;
   font-weight:300;
   color: rgba(155,155,155,0.37);
@@ -191,19 +194,20 @@ h3 {
 
 #article .footer .powered {
   color: rgba(155,155,155,0.37) !important;
-  padding-left:18px;
-  padding-right:18px;
+  padding:18px;
   float:left;
+  font-size:13px;
 }
 #article .footer .links {
-  padding-left:18px;
-  padding-right:18px;
+  padding:18px;
   float:right;
   color: rgba(155,155,155,0.37) !important;
+  font-size:13px;
 }
 #article .footer .links a{
   color: rgba(155,155,155,0.37) !important;
   margin-left: 18px;
+  font-size:13px;
 }
 
 
