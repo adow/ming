@@ -135,9 +135,41 @@ h3 {
   color: rgba(0,0,0,0.6);
   border-left:solid 3px rgba(0,0,0,0.04);
 }
+
+code {
+  word-break: break-all;
+  background-color: rgba(155, 155, 155, 0.1);
+  padding: 3.0px;
+}
+
+#article-content pre > code {
+  display: block;
+  padding: 5px;
+  font-size: 14.0px;
+  line-height: 1.5;
+  overflow: auto;
+}
+
+#article-content {
+  word-break: break-word;
+}
+
 #article #article-content a:hover {
   text-decoration:underline;
 }
+
+#article-content img {
+    margin: 60px auto;
+    display: block;
+    max-width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+#article-content img{
+  margin: 30px auto;
+}
+}
+
 #article #article-share {
   margin:18px auto;
   padding: 18px;

@@ -2,11 +2,45 @@
 
 为了了解一下 Javascript 开发的生态环境，我开始做一个小工具 `paper`。他是一个在线的 Markdown 编辑器（使用 CodeMirror)。可以用来发布一篇文章，他们在服务器上都是有一个静态的 `md` 文件。在这过程中我计划粗浅的学习这些知识： React.js, Node.js, NPM/Yarn, Babel, Webpack, ES6.
 
+![img](https://images.unsplash.com/photo-1518065336951-d16c043900d6?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=05f800ba4e6c18a40a8f7cf12cdd2c35&auto=format&fit=crop&w=100&q=60)
+
+![img](https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=59f17a21ae8a708059646146af380320&auto=format&fit=crop&w=100&q=60)
+
 本来只想用两天的时间来完成这个测试项目，但是实际却用了五天。在一个全新的开发环境中开发不是那么容易，不过还好这次的体验中并没有遇到太多的坑。
 
 大多数时候使用了 yarn 来作为包管理工具，因为以前并不用npm，所以没法做比较。当然这些东西比 python 下用 `easy_install` 和 pip 轻松多了。安装所有的包都很顺利。（只要不打开那个可怕的 `node_modules` 目录都觉得压力不大）
 
+![cache-control.png](http://7vihfk.com1.z0.glb.clouddn.com/cache-control.png)
+
 webpack 作为打包工具虽然需要配置，但是使用起来并一点也不轻松。难的地方在如何规划好现在的开发目录和发布目录，对此我还没有太多的经验，以至于全部完成项目之后，又觉得各个文件位置放的不合理，然后又重新梳理里了好几遍，以至于改了好几次配置文件。
+
+    func aw_downloadImageURL(url:NSURL,
+                                   showLoading:Bool,
+                                   completionBlock:AWImageLoaderCallback){
+        /// 先设置要下载的图片地址
+        self.aw_image_url = url
+        if showLoading {
+            self.aw_showLoading()
+        }
+        let loader = AWImageLoader()
+        loader.downloadImage(url) { [weak self](image, url) in
+            if showLoading {
+                self?.aw_hideLoading()
+            }
+            guard let _self = self, let _aw_image_url = _self.aw_image_url else {
+                NSLog("no imageView")
+                return
+            }
+            /// 校验一下现在是否还需要显示这个地址的图片
+            if _aw_image_url.absoluteString != url.absoluteString {
+                NSLog("url not match:%@,%@", _aw_image_url,url)
+            }
+            else{
+                self?.aw_setImage(image)
+                completionBlock(image,url)
+            }
+        }
+    }
 
 之前用 react.js 来作个文档项目的时候并没有使用任何包管理和打包工具。我只是使用了 react的两个文件和babel的浏览器运行时文件。当然我觉得直接这样用对我而言已经足够了。不过这次为了体验一下尽可能多的 javascript 生态环境，我还是用 webpack 来进行打包。使用下来之后我仍然对前端打包工具带来的益处存在疑虑，因为他们的复杂性并不小于所带来的好处。
 

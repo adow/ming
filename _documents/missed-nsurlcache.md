@@ -366,6 +366,6 @@ MING-ARTICLE-CONFIG
     "article_css": {}, 
     "article_publish_date": "2016-06-13", 
     "article_comments": 1, 
-    "article_theme": "default"
+    "article_theme": "lep"
 }
 ```
