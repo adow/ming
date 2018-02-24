@@ -589,7 +589,6 @@ class ArticleManager(Modal):
                 self.article_table[article_filename] = article
         return article
                 
-    
     def article_for_link(self,article_link):
         '''使用链接找到一篇文章'''
         l = filter(lambda article:article.article_link == article_link,

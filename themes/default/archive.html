@@ -45,7 +45,7 @@
     <div id = 'archive'>
       <h1>Archive</h1>
       <div class = 'archive-year post-list'>
-        {% for (year,article_list) in archive.items() %}
+        {% for (year,article_list) in archive|dictsort(false)|reverse %}
         <h2>{{ year }}</h2>
         {% for article in article_list %}
         <div class = 'article-list-item'>

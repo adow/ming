@@ -306,7 +306,7 @@ MING-ARTICLE-CONFIG
 {
     "article_title": "探究 Promise 对象",  
     "article_subtitle":"实现一个 Swift 下的 Promise ",
-    "article_theme": "lep", 
+    "article_theme": "default", 
     "article_link": "awpromise.html",
     "article_publish_date":"2016-05-09", 
     "article_cover_photo":"http://7vihfk.com1.z0.glb.clouddn.com/photo-1457369804613-52c61a468e7d.jpeg", 
