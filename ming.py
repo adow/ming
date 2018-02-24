@@ -396,15 +396,18 @@ class SiteMaker(Modal):
         atom_feed = fg.atom_str(pretty = True)
         return atom_feed
 
-    def create_article(self,name,title = 'untitled',link = None, config_file = False):
+    def create_article(self,name,title = 'untitled',config_file = False):
         '''往 _documents 中添加一篇新文章'''
         config = Config()
         config.clear() # 清理所有的信息，重写 article 配置 
         config.article_title = title
+        '''
         if not link:
             config.article_link = title + '.html'
         else:
             config.article_link = link
+        '''
+        config.article_link = os.path.splitext(name)[0] + '.html'
         config.article_subtitle = ''
         config.article_theme = 'default'
         config.article_publish_date = ''
@@ -428,7 +431,7 @@ class SiteMaker(Modal):
             f.write(inner_config_str)
         f.close()
         print 'article title:%s'%(title,)
-        print 'article link:%s'%(link,)
+        print 'article link:%s'%(config.article_link,)
         # config 
         if config_file:
             article_config_filename = article_filename + '.json'
@@ -647,7 +650,7 @@ def cli_make_article():
 
 def cli_create_article():
     clear_themes_copyed()
-    opts,args = getopt.getopt(sys.argv[2:],"n:t:l:",["name=","title=","link="])
+    opts,args = getopt.getopt(sys.argv[2:],"n:t:",["name=","title=",])
     name = ''
     title = 'untitled'
     link = ''
@@ -656,13 +659,11 @@ def cli_create_article():
             name = value 
         if op in ['-t','--title']:
             title = value
-        if op in ['-l','--link']:
-            link = value
     if not name:
         print '-n or --name required'
         return
     site_maker = SiteMaker()
-    site_maker.create_article(name,title=title,link = link)
+    site_maker.create_article(name,title=title)
 
 def cli_make_archive():
     clear_themes_copyed()
